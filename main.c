@@ -29,12 +29,11 @@ int main(int argc, char** argv) {
         WelcomeMessage();
         fgets(buffer, 1024, stdin);
         removeWhitespace(buffer);
-        char* varBuffer = checkForVariablAsssignment(buffer);
-        
+        char* varName = checkForVariablAsssignment(buffer);        
         calculation* currentCalculation = parse(buffer, lastResult);
         lastResult = calculate(currentCalculation, varRoot);
         
-        if(varBuffer)   addVariable(varRoot, varBuffer, currentCalculation);
+        if(varName)   addVariable(varRoot, varName, currentCalculation);
         else            deleteCalculation(currentCalculation);
         
         printf("Result:\t%g\n", lastResult);

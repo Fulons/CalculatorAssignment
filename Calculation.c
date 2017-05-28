@@ -67,6 +67,7 @@ calculation* newCalculation(calculation* parent){
     calc->op = OP_NOOP;
     calc->parent = parent;
     calc->operand1Set = false;
+    calc->inBracket = false;
     return calc;
 }
 
@@ -117,6 +118,8 @@ calculation* parse(char* str, double lastResult){
                         currentCalculation->parent->operand1->parent = currentCalculation->parent;
                         currentCalculation->parent = currentCalculation->parent->operand1;
                         currentCalculation = currentCalculation->parent->operand1;
+                        currentCalculation->inBracket = true;
+                        currentCalculation->operand2->inBracket = false;
                     }
                     else{
                         currentCalculation->parent->operand2 = newCalculation(NULL);
@@ -124,6 +127,8 @@ calculation* parse(char* str, double lastResult){
                         currentCalculation->parent->operand2->parent = currentCalculation->parent;
                         currentCalculation->parent = currentCalculation->parent->operand2;
                         currentCalculation = currentCalculation->parent->operand2;
+                        currentCalculation->inBracket = true;
+                        currentCalculation->operand2->inBracket = false;
                     }
                 }
             }
@@ -135,8 +140,9 @@ calculation* parse(char* str, double lastResult){
             }
             else{
                 currentCalculation->operand1 = newCalculation(currentCalculation);
-                currentCalculation = currentCalculation->operand1;
                 currentCalculation->operand1Set = true;
+                currentCalculation = currentCalculation->operand1;
+                currentCalculation->inBracket = true;
             }
             ++str;
         }
@@ -222,6 +228,7 @@ double calculate(calculation* calc, variable* node){    //recursive
 }
 
 void printCalculationRecursive(calculation* calc, FILE* file){
+    if(calc->inBracket) fprintf(file, "(");
     if(calc->operand1) printCalculationRecursive(calc->operand1, file);
     else if(calc->op == OP_EXTERNAL_CALCULATION) fprintf(file, "\"%s=%g\"", calc->externalCalculationName, calc->value);
     else fprintf(file, "%g", calc->value);
@@ -234,6 +241,7 @@ void printCalculationRecursive(calculation* calc, FILE* file){
         case OP_ROOT:                   fprintf(file, "v"); break;
     }
     if(calc->operand2) printCalculationRecursive(calc->operand2, file);
+    if(calc->inBracket) fprintf(file, ")");
 }
 
 void printCalculation(calculation* calc, FILE* file){
@@ -257,10 +265,11 @@ void parseFile(const char* filePath, variable* varRoot){
         if(buffer[0] == 'C'){            
             char* varName = checkForVariablAsssignment(&buffer[1]);
             if(varName){
-                calc = parse(&buffer[(strlen(varName) + 3)], lastResult);
-                lastResult = calculate(calc, varRoot);
+                calc = parse(&buffer[(strlen(varName) + 3)], lastResult);                
                 addVariable(varRoot, varName, calc);
             }
+            else calc = parse(&buffer[1], lastResult);
+            lastResult = calculate(calc, varRoot);
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
     }//fseek(file, 0, SEEK_END);

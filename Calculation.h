@@ -28,6 +28,7 @@ struct calculation{                     //Structure that will create a tree hier
     calculation* operand2;
     calculation* parent;
     bool operand1Set;
+    bool inBracket;
     char* externalCalculationName;
 };
 
