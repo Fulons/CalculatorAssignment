@@ -36,9 +36,17 @@ int main(int argc, char** argv) {
         fgets(buffer, 1024, stdin);             //Get input from user
         removeWhitespace(buffer);               //Remove all whitespace
         if(buffer[0] == 'q') break;
-        else if(buffer[0] == '?') displayHelp();
-        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(Ll?")){
-            printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.", *buffer);
+        else if(buffer[0] == '\0') continue;    //In some cases fgets return only whitespace
+        else if(buffer[0] == '?') { displayHelp(); continue; }
+        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(Ll?p")){
+            printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
+            continue;
+        }
+        else if(buffer[0] == 'p'){
+            char buffer[21];
+            buffer[0] = '\0';
+            printVariable(varRoot, buffer, true, true, stdout, false);
+            continue;
         }
         
         char* varName = checkForVariableAsssignment(buffer); //Extract varName if present
