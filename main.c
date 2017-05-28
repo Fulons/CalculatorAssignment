@@ -22,23 +22,17 @@ int main(int argc, char** argv) {
     variable* varRoot = newVariable();
     bool keepLastCalculation = false;
     
-    char* buffer = malloc(sizeof(char) * 1024);
+    char* buffer = malloc(sizeof(char) * 1024); //remove ++buffer...will run out of scope...
     double lastResult = 0;
+    parseFile("C:/Users/Fulons/Desktop/Calculator/Calculations.txt", varRoot);
     while(true){
         WelcomeMessage();
         fgets(buffer, 1024, stdin);
         removeWhitespace(buffer);
-        char* varBuffer = NULL;
-        if(buffer[0] == '_' && IsCharacters('=', buffer)){
-            varBuffer = malloc(sizeof(char) * 100);
-            int i = 0;
-            while(*buffer != '=') varBuffer[i++] = *(++buffer);
-            varBuffer[i - 1] = '\0';
-            ++buffer;
-        }
+        char* varBuffer = checkForVariablAsssignment(buffer);
         
-        calculation* currentCalculation = parse(buffer, varRoot, lastResult);        
-        double lastResult = calculate(currentCalculation, varRoot);
+        calculation* currentCalculation = parse(buffer, lastResult);
+        lastResult = calculate(currentCalculation, varRoot);
         
         if(varBuffer)   addVariable(varRoot, varBuffer, currentCalculation);
         else            deleteCalculation(currentCalculation);

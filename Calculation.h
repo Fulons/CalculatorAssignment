@@ -11,9 +11,10 @@
  * Created on 28 May 2017, 01:38
  */
 
-#include "Typedefs.h"
 #ifndef CALCULATION_H
 #define CALCULATION_H
+
+#include "Typedefs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -33,10 +34,11 @@ struct calculation{                     //Structure that will create a tree hier
 calculation* newCalculation(calculation* parent);
 void deleteCalculation(calculation* calc);
 
-calculation* parse(char* str, variable* varRoot, double lastResult);
+void parseFile(const char* filePath, variable* varRoot);
+calculation* parse(char* str, double lastResult);
 double calculate(calculation* calc, variable* node);
 
-void printCalculation(calculation* calc);
+void printCalculation(calculation* calc, FILE* file);
 
 #ifdef __cplusplus
 }

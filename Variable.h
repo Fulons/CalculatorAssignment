@@ -11,10 +11,12 @@
  * Created on 28 May 2017, 01:45
  */
 
-#include "Typedefs.h"
+
 
 #ifndef VARIABLE_H
 #define VARIABLE_H
+
+#include "Typedefs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +31,8 @@ struct variable{
 variable* newVariable();
 void addVariable(variable* node, const char* name, calculation* calc);
 calculation* findCalculation(variable* node, const char* name);
-void printVariable(variable* var, char* varName, bool printChildren, bool printCalc);
-
+void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file);
+char* checkForVariablAsssignment(char* str);
 
 #ifdef __cplusplus
 }

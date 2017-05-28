@@ -8,7 +8,7 @@
 #include <string.h> //for strlen
 #include "Variable.h"
 #include "Calculation.h"
-
+#include "StringHelpers.h"
 
 variable* newVariable(){
     variable* var = malloc(sizeof(variable));
@@ -26,22 +26,37 @@ void addVariable(variable* node, const char* name, calculation* calc){
 }
 
 calculation* findCalculation(variable* node, const char* name){
-    if(!name) return NULL;
+    if(!node || !name) return NULL;
     if(*name == '\0') return node->calc;
     else return findCalculation(node->vars[*name - 'a'], &name[1]);
 }
 
-void printVariable(variable* var, char* varName, bool printChildren, bool printCalc){
-    printf("%s = %g\n", varName, var->calc->value);
-    if(printCalculation) printCalculation(var->calc);
+void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file){
+    if(var->calc) {
+        if(!printCalc) fprintf(file, "%s = %g\n", varName, var->calc->value);
+        else fprintf(file, "%s = ", varName);
+        if(printCalc) printCalculation(var->calc, file);
+    }    
     if(printChildren){
         int nameLength = strlen(varName);        
         for(int i = 0; i < 26; i++){
             if(var->vars[i]){
-                varName[nameLength] = (char)i;
+                varName[nameLength] = (char)i + 'a';
                 varName[nameLength + 1] = '\0';
-                printVariable(var->vars[i], varName, printChildren, printCalc);
+                printVariable(var->vars[i], varName, printChildren, printCalc, file);
             }
         }
     }
+}
+
+char* checkForVariablAsssignment(char* str){
+    char* varBuffer = NULL;
+    if(str[0] == '_' && IsCharacters('=', str)){
+        varBuffer = malloc(sizeof(char) * 100);
+        int i = 0;
+        while(*str != '=') varBuffer[i++] = *(++str);
+        varBuffer[i - 1] = '\0';
+        ++str;
+    }
+    return varBuffer;
 }
