@@ -20,6 +20,14 @@ Use last result |   l L     | 5 + l         |  17               |
 Reassigning a variable can be done by creating a new variable with the same name
 When creating a variable the equation is stored rather than the value itself.
 This means that any variable contained in another variable can be changed.
+All variable names must be a combination of lower case letters only.
 
 When last result is used in a variable the value of the last result is stored
 rather than the last result operation itself.
+
+
+Advanced example
+
+_x = 8 + 3 * (9 + 5 ^ 2) / 10
+_y = _x_ + 25 v 2
+_z = _x_ + _y_

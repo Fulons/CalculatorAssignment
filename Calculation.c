@@ -42,7 +42,7 @@ int getPresedenceInt(int op){
 
 bool hasHigherPrecedence(int op, int opcomp){                                   //returns true if op has higher precedence than opcomp    
     assert((getPresedenceInt(op) != -1) && (getPresedenceInt(opcomp) != -1));
-    return op > opcomp;
+    return (getPresedenceInt(op) > getPresedenceInt(opcomp));
 }
 
 int translateOperator(char op){
@@ -117,18 +117,16 @@ calculation* parse(char* str, double lastResult){
                         currentCalculation->parent->operand1->operand1 = currentCalculation;
                         currentCalculation->parent->operand1->parent = currentCalculation->parent;
                         currentCalculation->parent = currentCalculation->parent->operand1;
-                        currentCalculation = currentCalculation->parent->operand1;
-                        currentCalculation->inBracket = true;
-                        currentCalculation->operand2->inBracket = false;
+                        currentCalculation = currentCalculation->parent;//->operand1;
+                        currentCalculation->operand1Set = true;
                     }
                     else{
                         currentCalculation->parent->operand2 = newCalculation(NULL);
                         currentCalculation->parent->operand2->operand1 = currentCalculation;
                         currentCalculation->parent->operand2->parent = currentCalculation->parent;
                         currentCalculation->parent = currentCalculation->parent->operand2;
-                        currentCalculation = currentCalculation->parent->operand2;
-                        currentCalculation->inBracket = true;
-                        currentCalculation->operand2->inBracket = false;
+                        currentCalculation = currentCalculation->parent;//->operand2;
+                        currentCalculation->operand1Set = true;
                     }
                 }
             }
@@ -137,6 +135,7 @@ calculation* parse(char* str, double lastResult){
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation = currentCalculation->operand2;
+                currentCalculation->inBracket = true;
             }
             else{
                 currentCalculation->operand1 = newCalculation(currentCalculation);
@@ -147,7 +146,11 @@ calculation* parse(char* str, double lastResult){
             ++str;
         }
         else if (*str == ')'){
-            currentCalculation = currentCalculation->parent;
+            if(currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
+            else {
+                while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
+                currentCalculation = currentCalculation->parent;
+            }
             ++str;
         }
         else if (*str == '_'){
