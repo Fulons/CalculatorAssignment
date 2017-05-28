@@ -36,6 +36,7 @@ void deleteCalculation(calculation* calc);
 calculation* parse(char* str, variable* varRoot, double lastResult);
 double calculate(calculation* calc, variable* node);
 
+void printCalculation(calculation* calc);
 
 #ifdef __cplusplus
 }

@@ -221,3 +221,24 @@ double calculate(calculation* calc, variable* node){    //recursive
     }
     return calc->value;
 }
+
+void printCalculationRecursive(calculation* calc){
+    if(calc->operand1) printCalculation(calc->operand1);
+    else if(calc->op == OP_EXTERNAL_CALCULATION) printf("\"%s %g\"", calc->externalCalculationName, calc->value);
+    else if(calc->op == OP_NOOP)return;
+    else printf("%g", calc->value);
+    switch(calc->op){
+        case OP_ADDITION:               printf(" + "); break;
+        case OP_SUBTRACTION:            printf(" - "); break;
+        case OP_MULTIPLICATION:         printf(" * "); break;
+        case OP_DIVISION:               printf(" / "); break;
+        case OP_POWER:                  printf("^"); break;
+        case OP_ROOT:                   printf("v"); break;
+    }
+    if(calc->operand2) printCalculation(calc->operand2);
+}
+
+void printCalculation(calculation* calc){
+    printCalculationRecursive(calc);
+    printf(" = %f\n", calc->value);
+}
