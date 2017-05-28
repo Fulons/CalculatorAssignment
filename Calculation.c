@@ -72,7 +72,9 @@ calculation* newCalculation(calculation* parent){
 }
 
 void deleteCalculation(calculation* calc){
-    
+    if(calc->operand1) free(calc->operand1);
+    if(calc->operand2) free(calc->operand2);
+    free(calc);
 }
 #define MAX_VAR_NAME_SIZE 20
 calculation* parse(char* str, double lastResult){
@@ -191,20 +193,12 @@ calculation* parse(char* str, double lastResult){
                 currentCalculation->operand1Set = true;
             }
         }
-        else if(*str == '\0') parsing = false;
+        else if(*str == '\0' || *str == '\r') parsing = false;
     }
+#ifdef DEBUG
     printf("Done parsing\n");
+#endif
     return root;
-}
-
-bool askUserYesOrNo(char* str){
-    while(true){
-        printf("%s (Y/N):", str);
-        char c;
-        scanf(" %c", &c);
-        if(c == 'Y' || c == 'y') return true;
-        else if(c == 'N' || c == 'n') return false;
-    }
 }
 
 double calculate(calculation* calc, variable* node){    //recursive
@@ -230,10 +224,13 @@ double calculate(calculation* calc, variable* node){    //recursive
     return calc->value;
 }
 
-void printCalculationRecursive(calculation* calc, FILE* file){
+void printCalculationRecursive(calculation* calc, FILE* file, bool printVarValue){
     if(calc->inBracket) fprintf(file, "(");
-    if(calc->operand1) printCalculationRecursive(calc->operand1, file);
-    else if(calc->op == OP_EXTERNAL_CALCULATION) fprintf(file, "\"%s=%g\"", calc->externalCalculationName, calc->value);
+    if(calc->operand1) printCalculationRecursive(calc->operand1, file, printVarValue);
+    else if(calc->op == OP_EXTERNAL_CALCULATION){
+        if(printVarValue) fprintf(file, "\"%s=%g\"", calc->externalCalculationName, calc->value);
+        else fprintf(file, "_%s_", calc->externalCalculationName);
+    }
     else fprintf(file, "%g", calc->value);
     switch(calc->op){
         case OP_ADDITION:               fprintf(file, " + "); break;
@@ -243,13 +240,14 @@ void printCalculationRecursive(calculation* calc, FILE* file){
         case OP_POWER:                  fprintf(file, "^"); break;
         case OP_ROOT:                   fprintf(file, "v"); break;
     }
-    if(calc->operand2) printCalculationRecursive(calc->operand2, file);
+    if(calc->operand2) printCalculationRecursive(calc->operand2, file, printVarValue);
     if(calc->inBracket) fprintf(file, ")");
 }
 
-void printCalculation(calculation* calc, FILE* file){
-    printCalculationRecursive(calc, file);
-    fprintf(file, " = %f\n", calc->value);
+void printCalculation(calculation* calc, FILE* file, bool printResult){
+    printCalculationRecursive(calc, file, printResult);
+    if(printResult) fprintf(file, " = %f\n", calc->value);
+    else fprintf(file, "\r\n");
 }
 
 #define FILE_BUFFER_SIZE 1024
@@ -266,7 +264,7 @@ void parseFile(const char* filePath, variable* varRoot){
         if(fgets(buffer, sizeof(char) * FILE_BUFFER_SIZE, file) == NULL) break;
         removeWhitespace(buffer);
         if(buffer[0] == 'C'){            
-            char* varName = checkForVariablAsssignment(&buffer[1]);
+            char* varName = checkForVariableAsssignment(&buffer[1]);
             if(varName){
                 calc = parse(&buffer[(strlen(varName) + 3)], lastResult);                
                 addVariable(varRoot, varName, calc);
@@ -278,7 +276,7 @@ void parseFile(const char* filePath, variable* varRoot){
     }//fseek(file, 0, SEEK_END);
     char* name = malloc(sizeof(char) * 21);
     name[0] = '\0';
-    printVariable(varRoot, name, true, true, stdout);
+    printVariable(varRoot, name, true, true, stdout, false);
     fclose(file);
     free(buffer);
 }

@@ -39,7 +39,7 @@ void parseFile(const char* filePath, variable* varRoot);
 calculation* parse(char* str, double lastResult);
 double calculate(calculation* calc, variable* node);
 
-void printCalculation(calculation* calc, FILE* file);
+void printCalculation(calculation* calc, FILE* file, bool printResult);
 
 #ifdef __cplusplus
 }

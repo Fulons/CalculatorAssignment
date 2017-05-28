@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
+#include <stdio.h>  //for printf
 #include "Typedefs.h"
 
 void removeWhitespace(char* str){
@@ -22,4 +22,14 @@ bool IsCharacters(char c, const char* str){
             if (c == str[i]) return true;
 		
 	}
+}
+
+bool askUserYesOrNo(char* str){
+    while(true){
+        printf("%s (Y/N):", str);
+        char c;
+        scanf(" %c", &c);
+        if(c == 'Y' || c == 'y') return true;
+        else if(c == 'N' || c == 'n') return false;
+    }
 }

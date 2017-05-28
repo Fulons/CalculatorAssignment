@@ -20,7 +20,14 @@ variable* newVariable(){
 }
 
 void addVariable(variable* node, const char* name, calculation* calc){
-    if(*name == '\0'){ node->calc = calc; return; } //TODO: need to check if node->calc is already set and ask user to confirm overwriting
+    if(*name == '\0'){
+        if(node->calc){
+            if(askUserYesOrNo("You sure you want to replace this variable?"))
+                node->calc = calc;
+        }
+        else node->calc = calc;
+        return;
+    } //TODO: need to check if node->calc is already set and ask user to confirm overwriting
     if(node->vars[*name - 'a'] == NULL) node->vars[*name - 'a'] = newVariable();
     addVariable(node->vars[*name - 'a'], &name[1], calc);
 }
@@ -31,11 +38,14 @@ calculation* findCalculation(variable* node, const char* name){
     else return findCalculation(node->vars[*name - 'a'], &name[1]);
 }
 
-void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file){
+void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile){
     if(var->calc) {
-        if(!printCalc) fprintf(file, "%s = %g\n", varName, var->calc->value);
-        else fprintf(file, "%s = ", varName);
-        if(printCalc) printCalculation(var->calc, file);
+        if(!printCalc) fprintf(file, "_%s = %g\n", varName, var->calc->value);
+        else {
+            if(printToSaveFile) fprintf(file, "C");
+            fprintf(file, "_%s = ", varName);
+            printCalculation(var->calc, file, !printToSaveFile);
+        }
     }    
     if(printChildren){
         int nameLength = strlen(varName);        
@@ -43,13 +53,13 @@ void printVariable(variable* var, char* varName, bool printChildren, bool printC
             if(var->vars[i]){
                 varName[nameLength] = (char)i + 'a';
                 varName[nameLength + 1] = '\0';
-                printVariable(var->vars[i], varName, printChildren, printCalc, file);
+                printVariable(var->vars[i], varName, printChildren, printCalc, file, printToSaveFile);
             }
         }
     }
 }
 
-char* checkForVariablAsssignment(char* str){
+char* checkForVariableAsssignment(char* str){
     char* varBuffer = NULL;
     if(str[0] == '_' && IsCharacters('=', str)){
         varBuffer = malloc(sizeof(char) * 100);

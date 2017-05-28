@@ -14,8 +14,10 @@ Brackets        |   ( )     |   5 * (3 + 2) |  25               |
 Create variable | _varName= | _myVar = 5 + 2| myVar = 5 + 2 = 7 |
 Use variable    | _varName_ | 5 + _myVar_   |  12               |
 ----------------|-----------|---------------|-------------------|
-Use last result |   l L     | 5 + l         |  17               |
-
+Use last result |   l L     |   5 + l       |  17               |
+----------------|-----------|---------------|-------------------|
+Show help       |   ?       |   ?           |Displays this table|
+----------------|-----------|---------------|-------------------|
 
 Reassigning a variable can be done by creating a new variable with the same name
 When creating a variable the equation is stored rather than the value itself.
@@ -31,3 +33,6 @@ Advanced example
 _x = 8 + 3 * (9 + 5 ^ 2) / 10
 _y = _x_ + 25 v 2
 _z = _x_ + _y_
+
+
+TODO: When expression starts with operator assume last result as first operand

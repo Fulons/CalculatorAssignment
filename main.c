@@ -13,6 +13,7 @@
 
 #include <stdio.h>      //for:  printf, fgets, stdin
 #include <stdlib.h>     //for:  EXIT_SUCCESS, malloc, strtod
+#include <string.h>     //for:  strlen
 #include "Operations.h"
 #include "Calculation.h"
 #include "Variable.h"
@@ -23,20 +24,41 @@ int main(int argc, char** argv) {
     bool keepLastCalculation = false;
     
     char* buffer = malloc(sizeof(char) * 1024); //remove ++buffer...will run out of scope...
-    double lastResult = 0;
-    parseFile("C:/Users/Fulons/Desktop/Calculator/Calculations.txt", varRoot);
+    double lastResult = 0;                      //Holds result of last calculation
+    welcomeMessage();                           //Display welcome message
+    if(askUserYesOrNo("Do you want to save your variables?")){
+        parseFile("SavedCalculations.txt", varRoot);  //Load last saved variables
+    }
+
     while(true){
-        WelcomeMessage();
-        fgets(buffer, 1024, stdin);
-        removeWhitespace(buffer);
-        char* varName = checkForVariablAsssignment(buffer);        
-        calculation* currentCalculation = parse(buffer, lastResult);
-        lastResult = calculate(currentCalculation, varRoot);
+        calculation* currentCalculation;
+
+        fgets(buffer, 1024, stdin);             //Get input from user
+        removeWhitespace(buffer);               //Remove all whitespace
+        if(buffer[0] == 'q') break;
+        else if(buffer[0] == '?') displayHelp();
+        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(Ll?")){
+            printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.", *buffer);
+        }
         
-        if(varName)   addVariable(varRoot, varName, currentCalculation);
-        else            deleteCalculation(currentCalculation);
-        
-        printf("Result:\t%g\n", lastResult);
+        char* varName = checkForVariableAsssignment(buffer); //Extract varName if present
+        if(varName){
+            currentCalculation = parse(&buffer[(strlen(varName) + 2)], lastResult); //Parse the string excluding the underscore, varName and equals symbol
+            addVariable(varRoot, varName, currentCalculation);                      //Add the variable to the trie
+        }
+        else currentCalculation = parse(&buffer[1], lastResult);    //No variable, just parse the string
+        lastResult = calculate(currentCalculation, varRoot);        //Calculate the calculation
+        if(!varName) {
+            deleteCalculation(currentCalculation);  //Calculation is not stored so free the memory
+            currentCalculation = NULL;
+        }
+        printf("Result:\t%g\n", lastResult);        //Display the result
+    }
+    if(askUserYesOrNo("Do you want to save your variables?")){
+        FILE* file = fopen("SavedCalculations.txt", "w");
+        char NameBuffer[21];
+        NameBuffer[0] = '\0';
+        printVariable(varRoot, NameBuffer, true, true, file, true);
     }
     return (EXIT_SUCCESS);
 }

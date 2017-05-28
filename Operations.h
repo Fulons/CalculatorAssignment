@@ -24,7 +24,8 @@ extern "C" {
     float subtraction(float x, float y);
     float power(float x, float p);
     float root(float x, float root);
-    void WelcomeMessage();
+    void welcomeMessage();
+    void displayHelp();
 
 
 #ifdef __cplusplus

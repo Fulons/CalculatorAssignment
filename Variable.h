@@ -31,8 +31,8 @@ struct variable{
 variable* newVariable();
 void addVariable(variable* node, const char* name, calculation* calc);
 calculation* findCalculation(variable* node, const char* name);
-void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file);
-char* checkForVariablAsssignment(char* str);
+void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
+char* checkForVariableAsssignment(char* str);
 
 #ifdef __cplusplus
 }
