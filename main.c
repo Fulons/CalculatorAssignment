@@ -1,12 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   main.c
- * Author: 172030
+ * Author: Fulons
  *
  * Created on 19 May 2017, 09:36
  */
@@ -19,51 +13,51 @@
 #include "Variable.h"
 #include "StringHelpers.h"
 
+#define INPUT_BUFFER_SIZE 1024
+#define DEFAULT_SAVED_VARIABLE_FILENAME "SavedCalculations.txt"
+#define VARIABLE_MAX_NAME_LENGTH 21     //Name length will be one less as the last char will be '\0'
+
 int main(int argc, char** argv) {
-    variable* varRoot = newVariable();
-    bool keepLastCalculation = false;
-    
-    char* buffer = malloc(sizeof(char) * 1024); //remove ++buffer...will run out of scope...
-    double lastResult = 0;                      //Holds result of last calculation
-    welcomeMessage();                           //Display welcome message
-    if(askUserYesOrNo("Do you want to save your variables?")){
-        parseFile("SavedCalculations.txt", varRoot);  //Load last saved variables
+    variable* varRoot = newVariable();                          //Holds the root to the trie of variables    
+    char* buffer = malloc(sizeof(char) * INPUT_BUFFER_SIZE);    //Buffer to store user input
+    double lastResult = 0;                                      //Holds result of last calculation
+    welcomeMessage();                                           //Display welcome message
+    if(askUserYesOrNo("Do you want to load variables from last session?")){
+        parseFile(DEFAULT_SAVED_VARIABLE_FILENAME, varRoot);    //Load last saved variables
     }
 
     while(true){
         calculation* currentCalculation;
 
-        fgets(buffer, 1024, stdin);             //Get input from user
-        removeWhitespace(buffer);               //Remove all whitespace
-        if(buffer[0] == 'q') break;
-        else if(buffer[0] == '\0') continue;    //In some cases fgets return only whitespace
-        else if(buffer[0] == '?') { displayHelp(); continue; }
-        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(Ll?p")){
+        fgets(buffer, INPUT_BUFFER_SIZE, stdin);    //Get input from user
+        removeWhitespace(buffer);                   //Remove all whitespace
+        if(buffer[0] == 'q') break;                                         //Quits the main loop if user entered q //Might want to prompt user if they are sure
+        else if(buffer[0] == '\0') continue;                                //In some cases fgets fill buffer with only whitespace
+        else if(buffer[0] == '?') { displayHelp(); continue; }              //Display help if user enters ?
+        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(Ll?pP")){    //Check if first char in buffer is a legal
             printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
             continue;
         }
-        else if(buffer[0] == 'p'){
+        else if(buffer[0] == 'p' || buffer[0] == 'P'){                      //Prints out all the variables currently in memory if user enters p
             char buffer[21];
             buffer[0] = '\0';
             printVariable(varRoot, buffer, true, true, stdout, false);
             continue;
         }
         
-        char* varName = checkForVariableAsssignment(buffer); //Extract varName if present
+        char* varName = checkForVariableAsssignment(buffer);                        //Extract varName if present
         if(varName){
             currentCalculation = parse(&buffer[(strlen(varName) + 2)], lastResult); //Parse the string excluding the underscore, varName and equals symbol
             addVariable(varRoot, varName, currentCalculation);                      //Add the variable to the trie
         }
-        else currentCalculation = parse(&buffer[1], lastResult);    //No variable, just parse the string
-        lastResult = calculate(currentCalculation, varRoot);        //Calculate the calculation
-        if(!varName) {
-            deleteCalculation(currentCalculation);  //Calculation is not stored so free the memory
-            currentCalculation = NULL;
-        }
-        printf("Result:\t%g\n", lastResult);        //Display the result
+        else currentCalculation = parse(&buffer[1], lastResult);                    //No variable, just parse the string
+        lastResult = calculate(currentCalculation, varRoot);                        //Calculate the calculation
+        if(!varName) deleteCalculation(currentCalculation);                         //Calculation is not stored so free the memory
+        printf("Result:\t%g\n", lastResult);                                        //Display the result
     }
-    if(askUserYesOrNo("Do you want to save your variables?")){
-        FILE* file = fopen("SavedCalculations.txt", "w");
+    
+    if(askUserYesOrNo("Do you want to save your variables?")){                      //Save variables to file if user wish to
+        FILE* file = fopen(DEFAULT_SAVED_VARIABLE_FILENAME, "w");
         char NameBuffer[21];
         NameBuffer[0] = '\0';
         printVariable(varRoot, NameBuffer, true, true, file, true);

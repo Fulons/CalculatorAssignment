@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 #include <assert.h> //for assert
 #include <stdlib.h> //for malloc
 #include <stdio.h>  //for printf
@@ -12,6 +6,7 @@
 #include "StringHelpers.h"
 #include "Operations.h"
 #include "Variable.h"
+#include "StringHelpers.h"  //For debugPrint
 
 enum operator{
     OP_ADDITION,
@@ -40,12 +35,14 @@ int getPresedenceInt(int op){
     }
 }
 
-bool hasHigherPrecedence(int op, int opcomp){                                   //returns true if op has higher precedence than opcomp    
+//returns true if op has higher precedence than opcomp
+bool hasHigherPrecedence(int op, int opcomp){
     assert((getPresedenceInt(op) != -1) && (getPresedenceInt(opcomp) != -1));
     return (getPresedenceInt(op) > getPresedenceInt(opcomp));
 }
 
-int translateOperator(char op){
+//Translate char into operation enum value
+int translateOperator(char op){     
     switch(op){
         case '+': return OP_ADDITION;
         case '-': return OP_SUBTRACTION;
@@ -59,7 +56,6 @@ int translateOperator(char op){
     }
 }
 
-
 calculation* newCalculation(calculation* parent){
     calculation* calc = malloc(sizeof(calculation));
     calc->operand1 = NULL;
@@ -71,19 +67,20 @@ calculation* newCalculation(calculation* parent){
     return calc;
 }
 
+//TODO: Free memory of externalCalculationName string????
 void deleteCalculation(calculation* calc){
     if(calc->operand1) free(calc->operand1);
     if(calc->operand2) free(calc->operand2);
     free(calc);
 }
-#define MAX_VAR_NAME_SIZE 20
+
 calculation* parse(char* str, double lastResult){
     calculation* currentCalculation = newCalculation(NULL);
-    calculation* root = currentCalculation;
+    calculation* root = currentCalculation; //The root might change while parsing
     bool parsing = true;
     while(parsing){
-        if(IsCharacters(*str, "0123456789.")){
-            if(currentCalculation->operand1Set){
+        if(IsCharacters(*str, "0123456789.")){      //Numerical operand, rely on newCalculation setting operand operation to OP_NOOP
+            if(currentCalculation->operand1Set){    //TODO: ErrorCheck: operator has been set??
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation->operand2->value = strtod(str, &str);
             }
@@ -93,12 +90,25 @@ calculation* parse(char* str, double lastResult){
                 currentCalculation->operand1Set = true;
             }
         }
-        else if(IsCharacters(*str, "+-*/^v")){
+        else if(*str == 'L' || *str == 'l'){
+            if(currentCalculation->operand1Set){
+                currentCalculation->operand2 = newCalculation(currentCalculation);
+                currentCalculation->operand2->value = lastResult;
+            }
+            else{
+                currentCalculation->operand1 = newCalculation(currentCalculation);
+                currentCalculation->operand1->value = lastResult;
+                currentCalculation->operand1Set = true;
+            }
+        }
+        else if(IsCharacters(*str, "+-*/^v")){      //Operation 
+                                                    //TODO: ErrorCheck: First operand set or is this first part of equation so lastValue should be used?
             if(currentCalculation->op == OP_NOOP){
                 currentCalculation->op = translateOperator(*str);
                 ++str;
             }
-            else{
+            else{   //TODO: ErrorCheck: Make sure Operand2 has been set?
+                    //TODO: These following cases are very similar and should be refactored
                 if(hasHigherPrecedence(translateOperator(*str), currentCalculation->op)){
                     currentCalculation->operand2->operand1 = newCalculation(currentCalculation->operand2);
                     currentCalculation->operand2->operand1->value = currentCalculation->operand2->value;
@@ -133,7 +143,7 @@ calculation* parse(char* str, double lastResult){
                 }
             }
         }
-        else if (*str == '('){
+        else if (*str == '('){  //TODO: Set operator to * or handle it as an error if operation is not set
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation = currentCalculation->operand2;
@@ -147,7 +157,7 @@ calculation* parse(char* str, double lastResult){
             }
             ++str;
         }
-        else if (*str == ')'){
+        else if (*str == ')'){  //TODO: Set operator to * or handle it as an error if operation is not set
             if(currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
             else {
                 while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
@@ -159,10 +169,10 @@ calculation* parse(char* str, double lastResult){
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation->operand2->op = OP_EXTERNAL_CALCULATION;
-                char* varName = malloc(sizeof(char) * (MAX_VAR_NAME_SIZE + 1));
+                char* varName = malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH));
                 int i = 0;
-                do{ varName[i++] = *(++str);}
-                while(*str != '_');
+                do{ varName[i++] = *(++str); }
+                while(*str != '_'); //TODO: Fix potential infinite loop by checking for 2nd '_'
                 varName[i - 1] = '\0';
                 currentCalculation->operand2->externalCalculationName = varName;
                 
@@ -171,33 +181,20 @@ calculation* parse(char* str, double lastResult){
             else{
                 currentCalculation->operand1 = newCalculation(currentCalculation);
                 currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;
-                char* varName = malloc(sizeof(char) * (MAX_VAR_NAME_SIZE + 1));
+                char* varName = malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
                 int i = 0;
                 do{ varName[i++] = *(++str);}
-                while(*str != '_');
+                while(*str != '_'); //TODO: Fix potential infinite loop by checking for 2nd '_'
                 varName[i - 1] = '\0';
                 currentCalculation->operand1->externalCalculationName = varName;
                 
                 ++str;
                 currentCalculation->operand1Set = true;
             }
-        }
-        else if(*str == 'L' || *str == 'l'){
-            if(currentCalculation->operand1Set){
-                currentCalculation->operand2 = newCalculation(currentCalculation);
-                currentCalculation->operand2->value = lastResult;
-            }
-            else{
-                currentCalculation->operand1 = newCalculation(currentCalculation);
-                currentCalculation->operand1->value = lastResult;
-                currentCalculation->operand1Set = true;
-            }
-        }
+        }        
         else if(*str == '\0' || *str == '\r') parsing = false;
     }
-#ifdef DEBUG
-    printf("Done parsing\n");
-#endif
+    debugPrint("Done parsing\n");
     return root;
 }
 

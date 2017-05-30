@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   Calculation.h
  * Author: Fulons
@@ -14,32 +8,34 @@
 #ifndef CALCULATION_H
 #define CALCULATION_H
 
-#include "Typedefs.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+#include "Typedefs.h"
 
-//Predefinition to allow the struct to contain pointers to itself
-struct calculation{                     //Structure that will create a tree hierarchical data structure
-    int op;
-    double value;
+#define VARIABLE_MAX_NAME_LENGTH 21
+
+//A binary tree data structure
+struct calculation{
+    int op;                 //Holds an enum value that determine the type of operation //The enum is found in Calculation.c
+    double value;           //The calculated value
     calculation* operand1;
     calculation* operand2;
     calculation* parent;
-    bool operand1Set;
-    bool inBracket;
-    char* externalCalculationName;
+    bool operand1Set;       //A helper when parsing the calculation string
+    bool inBracket;         //A helper when parsing and printing the calculation string
+    char* externalCalculationName;  //If op is external this will store the name of the variable it is stored in
 };
 
-calculation* newCalculation(calculation* parent);
-void deleteCalculation(calculation* calc);
+calculation* newCalculation(calculation* parent);   //Allocates memory and initialise
+void deleteCalculation(calculation* calc);          //Frees the memory and the memory of its children
 
-void parseFile(const char* filePath, variable* varRoot);
-calculation* parse(char* str, double lastResult);
-double calculate(calculation* calc, variable* node);
+void parseFile(const char* filePath, variable* varRoot);    //Parses a file of calculations
+calculation* parse(char* str, double lastResult);           //Parses a string into a calculation tree
+double calculate(calculation* calc, variable* node);        //Do the actual calculation of the tree
 
-void printCalculation(calculation* calc, FILE* file, bool printResult);
+void printCalculation(calculation* calc, FILE* file, bool printResult); //To print to a loadable file printResult must be false
 
 #ifdef __cplusplus
 }

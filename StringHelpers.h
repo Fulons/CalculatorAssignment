@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   StringHelpers.h
  * Author: Fulons
@@ -16,6 +10,12 @@
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+#ifdef DEBUG
+#define debugPrint(a) printf("DEBUG: "); printf(a)
+#else
+#define debugPrint(a)
 #endif
 
 void removeWhitespace(char* str);
