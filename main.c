@@ -8,6 +8,7 @@
 #include <stdio.h>      //for:  printf, fgets, stdin
 #include <stdlib.h>     //for:  EXIT_SUCCESS, malloc, strtod
 #include <string.h>     //for:  strlen
+
 #include "Operations.h"
 #include "Calculation.h"
 #include "Variable.h"
@@ -35,14 +36,14 @@ int main(int argc, char** argv) {
         if(buffer[0] == 'q') break;                                         //Quits the main loop if user entered q //Might want to prompt user if they are sure
         else if(buffer[0] == '\0') continue;                                //In some cases fgets fill buffer with only whitespace
         else if(buffer[0] == '?') { displayHelp(); continue; }              //Display help if user enters ?
-        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(Ll?pP")){    //Check if first char in buffer is a legal
+        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(l?p")){    //Check if first char in buffer is a legal
             printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
             continue;
         }
-        else if(buffer[0] == 'p' || buffer[0] == 'P'){                      //Prints out all the variables currently in memory if user enters p
-            char buffer[21];
-            buffer[0] = '\0';
-            printVariable(varRoot, buffer, true, true, stdout, false);
+        else if(buffer[0] == 'p'){                      //Prints out all the variables currently in memory if user enters p
+            char nameBuffer[VARIABLE_MAX_NAME_LENGTH];
+            nameBuffer[0] = '\0';
+            printVariable(varRoot, nameBuffer, true, true, stdout, false);
             continue;
         }
         
@@ -59,7 +60,7 @@ int main(int argc, char** argv) {
     
     if(askUserYesOrNo("Do you want to save your variables?")){                      //Save variables to file if user wish to
         FILE* file = fopen(DEFAULT_SAVED_VARIABLE_FILENAME, "w");
-        char NameBuffer[21];
+        char NameBuffer[VARIABLE_MAX_NAME_LENGTH];
         NameBuffer[0] = '\0';
         printVariable(varRoot, NameBuffer, true, true, file, true);
     }

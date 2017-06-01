@@ -272,7 +272,7 @@ void parseFile(const char* filePath, variable* varRoot){
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
     }//fseek(file, 0, SEEK_END);
-    char* name = malloc(sizeof(char) * 21);
+    char name[VARIABLE_MAX_NAME_LENGTH];
     name[0] = '\0';
     printVariable(varRoot, name, true, true, stdout, false);
     fclose(file);

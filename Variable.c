@@ -6,7 +6,7 @@
 #include "StringHelpers.h"
 
 variable* newVariable(){
-    variable* var = malloc(sizeof(variable));
+    variable* var = (variable*)malloc(sizeof(variable));
     for(int i = 0; i < 26; i++){
         var->vars[i] = NULL;
     }

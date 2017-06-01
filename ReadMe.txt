@@ -39,3 +39,4 @@ _z = _x_ + _y_
 
 
 TODO: When expression starts with operator assume last result as first operand
+TODO: Fix problem with \r\n....
