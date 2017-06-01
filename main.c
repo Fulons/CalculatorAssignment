@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
 
         fgets(buffer, INPUT_BUFFER_SIZE, stdin);    //Get input from user
         removeWhitespace(buffer);                   //Remove all whitespace
+        toLowerCase(buffer);
         if(buffer[0] == 'q') break;                                         //Quits the main loop if user entered q //Might want to prompt user if they are sure
         else if(buffer[0] == '\0') continue;                                //In some cases fgets fill buffer with only whitespace
         else if(buffer[0] == '?') { displayHelp(); continue; }              //Display help if user enters ?

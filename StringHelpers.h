@@ -21,6 +21,7 @@ extern "C" {
 void removeWhitespace(char* str);
 bool IsCharacters(char c, const char* str);
 bool askUserYesOrNo(char* str);
+void toLowerCase(char* str);
 
 #ifdef __cplusplus
 }

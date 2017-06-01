@@ -1,5 +1,7 @@
 #include <stdio.h>  //for printf
+#include <string.h> //for strlen
 #include "Typedefs.h"
+
 
 void removeWhitespace(char* str){
     int moveLength = 0;
@@ -26,5 +28,13 @@ bool askUserYesOrNo(char* str){
         scanf(" %c", &c);
         if(c == 'Y' || c == 'y') return true;
         else if(c == 'N' || c == 'n') return false;
+    }
+}
+
+void toLowerCase(char* str){
+    int length = strlen(str);
+    for (int i = 0; i < length; i++){
+        if(str[i] >= 'A' && str[i] <= 'Z')
+            str[i] = str[i] - 'A' + 'a';
     }
 }

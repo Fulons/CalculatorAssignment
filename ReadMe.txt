@@ -25,7 +25,7 @@ Print variables |   p       |   p           |Display list of vars|
 Reassigning a variable can be done by creating a new variable with the same name
 When creating a variable the equation is stored rather than the value itself.
 This means that any variable contained in another variable can be changed.
-All variable names must be a combination of lower case letters only.
+All variable names are not case sensitive.
 
 When last result is used in a variable the value of the last result is stored
 rather than the last result operation itself.

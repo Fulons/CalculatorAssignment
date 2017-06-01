@@ -258,9 +258,10 @@ void parseFile(const char* filePath, variable* varRoot){
     calculation* calc = NULL;
     double lastResult = 0;
     while(true){
-        if(fgets(buffer, sizeof(char) * FILE_BUFFER_SIZE, file) == NULL) break;
+        if(fgets(buffer, sizeof(char) * FILE_BUFFER_SIZE, file) == NULL) break;        
+        toLowerCase(buffer);
         removeWhitespace(buffer);
-        if(buffer[0] == 'C'){            
+        if(buffer[0] == 'c'){            
             char* varName = checkForVariableAsssignment(&buffer[1]);
             if(varName){
                 calc = parse(&buffer[(strlen(varName) + 3)], lastResult);                
