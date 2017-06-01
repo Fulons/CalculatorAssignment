@@ -14,6 +14,16 @@ variable* newVariable(){
     return var;
 }
 
+void deleteVariable(variable* var){
+    if(!var) return;
+    for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++)
+        if(var->vars[i]){
+            deleteVariable(var->vars[i]);
+        }
+    if(var->calc) free(var->calc);
+    free(var);
+}
+
 void addVariable(variable* node, const char* name, calculation* calc){
     if(*name == '\0'){
         if(node->calc){
@@ -57,7 +67,7 @@ void printVariable(variable* var, char* varName, bool printChildren, bool printC
 char* checkForVariableAsssignment(char* str){
     char* varBuffer = NULL;
     if(str[0] == '_' && IsCharacters('=', str)){
-        varBuffer = malloc(sizeof(char) * 100);
+        varBuffer = (char*)malloc(sizeof(char) * VARIABLE_MAX_NAME_LENGTH);
         int i = 0;
         while(*str != '=') varBuffer[i++] = *(++str);
         varBuffer[i - 1] = '\0';

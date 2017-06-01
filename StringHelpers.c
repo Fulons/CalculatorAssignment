@@ -8,17 +8,23 @@ void removeWhitespace(char* str){
     for(int i = 0; ; i++){
         int j = i - moveLength;
         str[j] = str[i];
-        if(str[i] == '\n') {str[j] = '\0'; break;}
-        if(str[i] == ' ' || str[i] == '\t') moveLength++;
+        if(str[i] == '\b') moveLength += 2;
+        else if(str[i] == '\n' || str[i] == '\r' || str[i] == '\0') {str[j] = '\0'; break;}
+    }
+    moveLength = 0;
+    for(int i = 0; ; i++){
+        int j = i - moveLength;
+        str[j] = str[i];
+        if(str[i] == '\n' || str[i] == '\r' || str[i] == '\0') {str[j] = '\0'; break;}
+        else if(str[i] == ' ' || str[i] == '\t') moveLength++;        
     }
 }
 
 bool IsCharacters(char c, const char* str){
-	for (int i = 0;; i++){
-            if (str[i] == '\0') return false;
-            if (c == str[i]) return true;
-		
-	}
+    for (int i = 0;; i++){
+        if (str[i] == '\0') return false;
+        if (c == str[i]) return true;
+    }
 }
 
 bool askUserYesOrNo(char* str){
@@ -37,4 +43,17 @@ void toLowerCase(char* str){
         if(str[i] >= 'A' && str[i] <= 'Z')
             str[i] = str[i] - 'A' + 'a';
     }
+}
+
+int readFileToDelim(char* buffer, int bufferSize, const char* delims, FILE* file){
+    if(ferror(file)) return 0;
+    for(int i = 0; i <  bufferSize; i++){
+        int buff = (char)fgetc(file);
+        buffer[i] = buff;
+        if(IsCharacters(buffer[i], delims) || feof(file)){
+            buffer[i] = '\0';
+            return ++i;
+        }
+    }
+    return bufferSize;
 }

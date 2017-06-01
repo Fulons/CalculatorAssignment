@@ -22,6 +22,7 @@ void removeWhitespace(char* str);
 bool IsCharacters(char c, const char* str);
 bool askUserYesOrNo(char* str);
 void toLowerCase(char* str);
+int readFileToDelim(char* buffer, int bufferSize, const char* delims, FILE* file);
 
 #ifdef __cplusplus
 }

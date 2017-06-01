@@ -57,7 +57,7 @@ int translateOperator(char op){
 }
 
 calculation* newCalculation(calculation* parent){
-    calculation* calc = malloc(sizeof(calculation));
+    calculation* calc = (calculation*)malloc(sizeof(calculation));
     calc->operand1 = NULL;
     calc->operand2 = NULL;
     calc->op = OP_NOOP;
@@ -71,6 +71,7 @@ calculation* newCalculation(calculation* parent){
 void deleteCalculation(calculation* calc){
     if(calc->operand1) free(calc->operand1);
     if(calc->operand2) free(calc->operand2);
+    if(calc->externalCalculationName) free(calc->externalCalculationName);
     free(calc);
 }
 
@@ -169,7 +170,7 @@ calculation* parse(char* str, double lastResult){
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation->operand2->op = OP_EXTERNAL_CALCULATION;
-                char* varName = malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH));
+                char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH));
                 int i = 0;
                 do{ varName[i++] = *(++str); }
                 while(*str != '_'); //TODO: Fix potential infinite loop by checking for 2nd '_'
@@ -181,7 +182,7 @@ calculation* parse(char* str, double lastResult){
             else{
                 currentCalculation->operand1 = newCalculation(currentCalculation);
                 currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;
-                char* varName = malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
+                char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
                 int i = 0;
                 do{ varName[i++] = *(++str);}
                 while(*str != '_'); //TODO: Fix potential infinite loop by checking for 2nd '_'
@@ -193,6 +194,7 @@ calculation* parse(char* str, double lastResult){
             }
         }        
         else if(*str == '\0' || *str == '\r') parsing = false;
+        else { debugPrint("Unexpected symbol in string.\n"); return; }
     }
     debugPrint("Done parsing\n");
     return root;
@@ -250,16 +252,15 @@ void printCalculation(calculation* calc, FILE* file, bool printResult){
 #define FILE_BUFFER_SIZE 1024
 
 void parseFile(const char* filePath, variable* varRoot){
-    unsigned int bufferSize = sizeof(char) * FILE_BUFFER_SIZE;
-    char* buffer = malloc(bufferSize);
-    FILE* file = fopen(filePath, "r+");
+    char* buffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
+    FILE* file = fopen(filePath, "r");
     if(!file) { printf("Could not find file: %s", filePath); return; }
     
     calculation* calc = NULL;
     double lastResult = 0;
     while(true){
-        if(fgets(buffer, sizeof(char) * FILE_BUFFER_SIZE, file) == NULL) break;        
-        toLowerCase(buffer);
+        if(readFileToDelim(buffer, sizeof(char) * FILE_BUFFER_SIZE, "\n\r", file) == 0) break;        
+        toLowerCase(buffer);        
         removeWhitespace(buffer);
         if(buffer[0] == 'c'){            
             char* varName = checkForVariableAsssignment(&buffer[1]);

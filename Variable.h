@@ -16,13 +16,16 @@
 extern "C" {
 #endif
     
-
+#define VARIABLE_TRIE_WIDTH 26
+#define VARIABLE_MAX_NAME_LENGTH 21     //Name length will be one less as the last char will be '\0'
+    
 struct variable{
-    variable* vars[26];
+    variable* vars[VARIABLE_TRIE_WIDTH];
     calculation* calc;
 };
 
 variable* newVariable();
+void deleteVariable(variable* var);
 void addVariable(variable* node, const char* name, calculation* calc);
 calculation* findCalculation(variable* node, const char* name);
 void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
