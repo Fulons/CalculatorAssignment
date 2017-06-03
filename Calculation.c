@@ -95,11 +95,13 @@ calculation* parse(char* str, double lastResult){
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation->operand2->value = lastResult;
+                ++str;
             }
             else{
                 currentCalculation->operand1 = newCalculation(currentCalculation);
                 currentCalculation->operand1->value = lastResult;
                 currentCalculation->operand1Set = true;
+                ++str;
             }
         }
         else if(IsCharacters(*str, "+-*/^v")){      //Operation 
@@ -128,17 +130,19 @@ calculation* parse(char* str, double lastResult){
                     else if(currentCalculation->parent->operand1 == currentCalculation){
                         currentCalculation->parent->operand1 = newCalculation(NULL);
                         currentCalculation->parent->operand1->operand1 = currentCalculation;
+                        currentCalculation->parent->operand1->operand1Set = true;
                         currentCalculation->parent->operand1->parent = currentCalculation->parent;
                         currentCalculation->parent = currentCalculation->parent->operand1;
-                        currentCalculation = currentCalculation->parent;//->operand1;
+                        currentCalculation = currentCalculation->parent;
                         currentCalculation->operand1Set = true;
                     }
                     else{
                         currentCalculation->parent->operand2 = newCalculation(NULL);
                         currentCalculation->parent->operand2->operand1 = currentCalculation;
+                        currentCalculation->parent->operand2->operand1Set = true;
                         currentCalculation->parent->operand2->parent = currentCalculation->parent;
                         currentCalculation->parent = currentCalculation->parent->operand2;
-                        currentCalculation = currentCalculation->parent;//->operand2;
+                        currentCalculation = currentCalculation->parent;
                         currentCalculation->operand1Set = true;
                     }
                 }
@@ -194,7 +198,7 @@ calculation* parse(char* str, double lastResult){
             }
         }        
         else if(*str == '\0' || *str == '\r') parsing = false;
-        else { debugPrint("Unexpected symbol in string.\n"); return; }
+        else { debugPrint("Unexpected symbol in string.\n"); return NULL; }
     }
     debugPrint("Done parsing\n");
     return root;
@@ -211,7 +215,7 @@ double calculate(calculation* calc, variable* node){    //recursive
         case OP_EXTERNAL_CALCULATION: {
             calculation* externalCalc = findCalculation(node, calc->externalCalculationName);
             if(!externalCalc) {
-                printf("ERROR: Could not find variable:\t%s\nValue replaced by 0!", calc->externalCalculationName);
+                printf("ERROR: Could not find variable:\t%s\nValue replaced by 0!\n", calc->externalCalculationName);
                 calc->value = 0;
             }
             else calc->value = calculate(externalCalc, node);
@@ -269,13 +273,15 @@ void parseFile(const char* filePath, variable* varRoot){
                 addVariable(varRoot, varName, calc);
             }
             else calc = parse(&buffer[1], lastResult);
-            lastResult = calculate(calc, varRoot);
+            //lastResult = calculate(calc, varRoot);
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
     }//fseek(file, 0, SEEK_END);
+    calcTrie(varRoot, varRoot);
     char name[VARIABLE_MAX_NAME_LENGTH];
     name[0] = '\0';
     printVariable(varRoot, name, true, true, stdout, false);
     fclose(file);
     free(buffer);
 }
+

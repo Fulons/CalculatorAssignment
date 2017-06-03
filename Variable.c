@@ -75,3 +75,10 @@ char* checkForVariableAsssignment(char* str){
     }
     return varBuffer;
 }
+
+void calcTrie(variable* var, variable* varRoot){
+    if(var->calc) calculate(var->calc, varRoot);
+    for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++){
+        if(var->vars[i]) calcTrie(var->vars[i], varRoot);
+    }
+}

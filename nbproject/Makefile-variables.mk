@@ -7,21 +7,21 @@ CND_BASEDIR=`pwd`
 CND_BUILDDIR=build
 CND_DISTDIR=dist
 # Debug configuration
-CND_PLATFORM_Debug=MinGW-Windows
-CND_ARTIFACT_DIR_Debug=dist/Debug/MinGW-Windows
-CND_ARTIFACT_NAME_Debug=calculatorassignment
-CND_ARTIFACT_PATH_Debug=dist/Debug/MinGW-Windows/calculatorassignment
-CND_PACKAGE_DIR_Debug=dist/Debug/MinGW-Windows/package
-CND_PACKAGE_NAME_Debug=calculatorassignment.tar
-CND_PACKAGE_PATH_Debug=dist/Debug/MinGW-Windows/package/calculatorassignment.tar
+CND_PLATFORM_Debug=Cygwin-Windows
+CND_ARTIFACT_DIR_Debug=dist/Debug/Cygwin-Windows
+CND_ARTIFACT_NAME_Debug=calculator
+CND_ARTIFACT_PATH_Debug=dist/Debug/Cygwin-Windows/calculator
+CND_PACKAGE_DIR_Debug=dist/Debug/Cygwin-Windows/package
+CND_PACKAGE_NAME_Debug=calculator.tar
+CND_PACKAGE_PATH_Debug=dist/Debug/Cygwin-Windows/package/calculator.tar
 # Release configuration
-CND_PLATFORM_Release=MinGW-Windows
-CND_ARTIFACT_DIR_Release=dist/Release/MinGW-Windows
-CND_ARTIFACT_NAME_Release=calculatorassignment
-CND_ARTIFACT_PATH_Release=dist/Release/MinGW-Windows/calculatorassignment
-CND_PACKAGE_DIR_Release=dist/Release/MinGW-Windows/package
-CND_PACKAGE_NAME_Release=calculatorassignment.tar
-CND_PACKAGE_PATH_Release=dist/Release/MinGW-Windows/package/calculatorassignment.tar
+CND_PLATFORM_Release=Cygwin-Windows
+CND_ARTIFACT_DIR_Release=dist/Release/Cygwin-Windows
+CND_ARTIFACT_NAME_Release=calculator
+CND_ARTIFACT_PATH_Release=dist/Release/Cygwin-Windows/calculator
+CND_PACKAGE_DIR_Release=dist/Release/Cygwin-Windows/package
+CND_PACKAGE_NAME_Release=calculator.tar
+CND_PACKAGE_PATH_Release=dist/Release/Cygwin-Windows/package/calculator.tar
 #
 # include compiler specific variables
 #

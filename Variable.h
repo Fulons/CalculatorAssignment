@@ -30,6 +30,7 @@ void addVariable(variable* node, const char* name, calculation* calc);
 calculation* findCalculation(variable* node, const char* name);
 void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
 char* checkForVariableAsssignment(char* str);
+void calcTrie(variable* var, variable* varRoot);
 
 #ifdef __cplusplus
 }

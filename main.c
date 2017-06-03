@@ -28,8 +28,6 @@ int main(int argc, char** argv) {
     }
 
     while(true){
-        
-
         fgets(buffer, INPUT_BUFFER_SIZE, stdin);    //Get input from user
         removeWhitespace(buffer);                   //Remove all whitespace
         toLowerCase(buffer);
@@ -53,7 +51,7 @@ int main(int argc, char** argv) {
             currentCalculation = parse(&buffer[(strlen(varName) + 2)], lastResult); //Parse the string excluding the underscore, varName and equals symbol
             addVariable(varRoot, varName, currentCalculation);                      //Add the variable to the trie
         }
-        else currentCalculation = parse(&buffer[1], lastResult);                    //No variable, just parse the string
+        else currentCalculation = parse(&buffer[0], lastResult);                    //No variable, just parse the string
         lastResult = calculate(currentCalculation, varRoot);                        //Calculate the calculation
         if(!varName) deleteCalculation(currentCalculation);                         //Calculation is not stored so free the memory
         printf("Result:\t%g\n", lastResult);                                        //Display the result
