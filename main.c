@@ -19,7 +19,7 @@
 
 
 int main(int argc, char** argv) {
-    variable* varRoot = newVariable();                                  //Holds the root to the trie of variables    
+    variable* varRoot = newVariable();                                  //Holds the root to the trie of variables
     char* buffer = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);     //Buffer to store user input
     double lastResult = 0;                                              //Holds result of last calculation
     welcomeMessage();                                                   //Display welcome message
@@ -36,10 +36,10 @@ int main(int argc, char** argv) {
             printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
             continue;
         }
-        if(buffer[0] == 'q') break;                                         //Quits the main loop if user entered q //Might want to prompt user if they are sure
-        else if(buffer[0] == '\0') continue;                                //In some cases fgets fill buffer with only whitespace
-        else if(buffer[0] == '?') { displayHelp(); continue; }              //Display help if user enters ?
-        else if(buffer[0] == 'p'){                      //Prints out all the variables currently in memory if user enters p
+        if(buffer[0] == 'q') break;                             //Quits the main loop if user entered q //Might want to prompt user if they are sure
+        else if(buffer[0] == '\0') continue;                    //In some cases fgets fill buffer with only whitespace
+        else if(buffer[0] == '?') { displayHelp(); continue; }  //Display help if user enters ?
+        else if(buffer[0] == 'p'){                              //Prints out all the variables currently in memory if user enters p
             char nameBuffer[VARIABLE_MAX_NAME_LENGTH];
             nameBuffer[0] = '\0';
             printVariable(varRoot, nameBuffer, true, true, stdout, false);
@@ -51,6 +51,7 @@ int main(int argc, char** argv) {
         if(varName){
             currentCalculation = parse(&buffer[(strlen(varName) + 2)], lastResult); //Parse the string excluding the underscore, varName and equals symbol
             addVariable(varRoot, varName, currentCalculation);                      //Add the variable to the trie
+            free(varName);
         }
         else currentCalculation = parse(&buffer[0], lastResult);                    //No variable, just parse the string
         lastResult = calculate(currentCalculation, varRoot);                        //Calculate the calculation

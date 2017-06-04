@@ -104,50 +104,35 @@ calculation* parse(char* str, double lastResult){
                 if(hasHigherPrecedence(translateOperator(*str), currentCalculation->op)){
                     calculation* newCalc = newCalculation(currentCalculation);
                     newCalc->operand1 = currentCalculation->operand2;
-                    newCalc->operand1Set = true;
-                    
+                    newCalc->operand1Set = true;                    
                     currentCalculation->operand2 = newCalc;
-                    newCalc->operand1->parent = newCalc;
-                    
+                    newCalc->operand1->parent = newCalc;                    
                     currentCalculation = newCalc;
-                    
-                    //currentCalculation->operand2->operand1 = newCalculation(currentCalculation->operand2);
-                    //currentCalculation->operand2->operand1->value = currentCalculation->operand2->value;
-                    //currentCalculation->operand2->value = 0;
-                    //currentCalculation->operand2->operand1Set = true;
-                    //currentCalculation = currentCalculation->operand2;
                 }
                 else{
                     if(currentCalculation->parent == NULL){                        
                         calculation* newCalc = newCalculation(NULL);
                         newCalc->operand1 = currentCalculation;
-                        newCalc->operand1Set = true;
-                        
+                        newCalc->operand1Set = true;                        
                         currentCalculation->parent = newCalc;
-                        currentCalculation = newCalc;
-                        
+                        currentCalculation = newCalc;                        
                         root = currentCalculation;
                     }
                     else if(currentCalculation->parent->operand1 == currentCalculation){
                         calculation* newCalc = newCalculation(currentCalculation->parent);
                         newCalc->operand1 = currentCalculation;
-                        newCalc->operand1Set = true;                        
-                        
+                        newCalc->operand1Set = true;
                         newCalc->parent->operand1 = newCalc;
-                        
                         currentCalculation->parent = newCalc;
                         currentCalculation = newCalc;
                     }
                     else{
                         calculation* newCalc = newCalculation(currentCalculation->parent);
                         newCalc->operand1 = currentCalculation;
-                        newCalc->operand1Set = true;
-                        
+                        newCalc->operand1Set = true;                        
                         newCalc->inBracket = currentCalculation->inBracket;
                         currentCalculation->inBracket = false;
-                        
                         newCalc->parent->operand2 = newCalc;
-                        
                         currentCalculation->parent = newCalc;
                         currentCalculation = newCalc;
                     }
@@ -156,6 +141,7 @@ calculation* parse(char* str, double lastResult){
         }
         else if (*str == '('){  //TODO: Set operator to * or handle it as an error if operation is not set
             if(currentCalculation->operand1Set){
+                if(currentCalculation->op == OP_NOOP) currentCalculation->op = OP_MULTIPLICATION;   //if no operator before parenthesis set operator to multiplication
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation = currentCalculation->operand2;
                 currentCalculation->inBracket = true;
@@ -274,6 +260,7 @@ void parseFile(const char* filePath, variable* varRoot){
             if(varName){
                 calc = parse(&buffer[(strlen(varName) + 3)], lastResult);                
                 addVariable(varRoot, varName, calc);
+                free(varName);
             }
             else calc = parse(&buffer[1], lastResult);
             //lastResult = calculate(calc, varRoot);
