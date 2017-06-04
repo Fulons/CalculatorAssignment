@@ -28,25 +28,25 @@ typedef enum operator{
 } operator;
 
 //A binary tree data structure
-struct calculation{
+struct Calculation{
     operator op;            //Holds an enum value that determine the type of operation //The enum is found in Calculation.c
     double value;           //The calculated value
-    calculation* operand1;
-    calculation* operand2;
-    calculation* parent;
-    bool operand1Set;       //A helper when parsing the calculation string
+    Calculation* operand1;
+    Calculation* operand2;
+    Calculation* parent;
+    bool operand1Set;       //A helper when parsing the calculation string. TODO: Might not be needed as operand1 should be NULL if not set
     bool inBracket;         //A helper when parsing and printing the calculation string
     char* externalCalculationName;  //If op is external this will store the name of the variable it is stored in
 };
 
-calculation* newCalculation(calculation* parent);   //Allocates memory and initialise
-void deleteCalculation(calculation* calc);          //Frees the memory and the memory of its children
+Calculation* NewCalculation(Calculation* parent);   //Allocates memory and initialise
+void DeleteCalculation(Calculation* calc);          //Frees the memory and the memory of its children
 
-void parseFile(const char* filePath, variable* varRoot);    //Parses a file of calculations
-calculation* parse(char* str, double lastResult);           //Parses a string into a calculation tree
-double calculate(calculation* calc, variable* node);        //Do the actual calculation of the tree
+void ParseFile(const char* filePath, Variable* varRoot);    //Parses a file of calculations
+Calculation* Parse(char* str, double lastResult);           //Parses a string containing a single calculation into a calculation tree
+double Calculate(Calculation* calc, Variable* node);        //Do the actual calculation of a single calculation tree
 
-void printCalculation(calculation* calc, FILE* file, bool printResult); //To print to a loadable file printResult must be false
+void PrintCalculation(Calculation* calc, FILE* file, bool printResult); //To print to a loadable file printResult must be false
 
 #ifdef __cplusplus
 }

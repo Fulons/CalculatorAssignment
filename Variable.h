@@ -10,27 +10,29 @@
 #ifndef VARIABLE_H
 #define VARIABLE_H
 
-#include "Typedefs.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
     
+#include "Typedefs.h"
+#include "StringHelpers.h"
+    
 #define VARIABLE_TRIE_WIDTH 26
 #define VARIABLE_MAX_NAME_LENGTH 21     //Name length will be one less as the last char will be '\0'
     
-struct variable{
-    variable* vars[VARIABLE_TRIE_WIDTH];
-    calculation* calc;
+struct Variable{
+    Variable* vars[VARIABLE_TRIE_WIDTH];
+    Calculation* calc;
 };
 
-variable* newVariable();
-void deleteVariable(variable* var);
-void addVariable(variable* node, const char* name, calculation* calc);
-calculation* findCalculation(variable* node, const char* name);
-void printVariable(variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
-char* checkForVariableAsssignment(char* str);
-void calcTrie(variable* var, variable* varRoot);
+Variable* NewVariable();
+void DeleteVariable(Variable* var);
+void AddVariable(Variable* node, const char* name, Calculation* calc);
+Calculation* FindCalculation(Variable* node, const char* name);
+void PrintVariable(Variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
+char* CheckForVariableAsssignment(char* str);
+void CalcTrie(Variable* var, Variable* varRoot);
+bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot);
 
 #ifdef __cplusplus
 }

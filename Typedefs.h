@@ -20,8 +20,8 @@ extern "C" {
 
 typedef enum { false = 0, true = 1 } bool;
 
-typedef struct variable variable;
-typedef struct calculation calculation; 
+typedef struct Variable Variable;
+typedef struct Calculation Calculation; 
 
 #ifdef __cplusplus
 }

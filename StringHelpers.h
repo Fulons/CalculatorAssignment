@@ -19,12 +19,40 @@ extern "C" {
 #endif
 
 #define errorPrint(a) printf("Error: "); printf(a)
-    
-void removeWhitespace(char* str);
+
+////////////////Used for error searching for self containing variables///////////////
+typedef struct{
+    const char* str;
+}CString;
+
+typedef struct{
+    CString* array;
+    int numNames;
+}ConstStringArray;
+
+void PushName(ConstStringArray* n, const char* str);
+void PopLastString(ConstStringArray* n);
+bool FindName(ConstStringArray* n, const char* str);
+ConstStringArray* CreateArrayOfStrings(const char* firstStr);
+void DeleteArrayOfstring(ConstStringArray* n);
+
+
+typedef struct{
+    char* str;
+    int size;
+}string;
+
+string* PushChar(string* str, char c);
+string* PopLastChar(string* str);
+string* CreateString();
+void DeleteString(string* str);
+/////////////////////////////////////////////////////////////////////////////////////
+
+void RemoveWhitespace(char* str);
 bool IsCharacters(char c, const char* str);
-bool askUserYesOrNo(char* str);
-void toLowerCase(char* str);
-int readFileToDelim(char* buffer, int bufferSize, const char* delims, FILE* file);
+bool AskUserYesOrNo(char* str);
+void ToLowerCase(char* str);
+int ReadFileToDelim(char* buffer, int bufferSize, const char* delims, FILE* file);
 
 #ifdef __cplusplus
 }
