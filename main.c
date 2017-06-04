@@ -30,21 +30,22 @@ int main(int argc, char** argv) {
     while(true){
         fgets(buffer, INPUT_BUFFER_SIZE, stdin);    //Get input from user
         removeWhitespace(buffer);                   //Remove all whitespace
+        if(buffer[0] == '\0') continue;             //In some cases stdin will have some remainning whitespace this will resolve that
         toLowerCase(buffer);
-        if(buffer[0] == 'q') break;                                         //Quits the main loop if user entered q //Might want to prompt user if they are sure
-        else if(buffer[0] == '\0') continue;                                //In some cases fgets fill buffer with only whitespace
-        else if(buffer[0] == '?') { displayHelp(); continue; }              //Display help if user enters ?
-        else if(!IsCharacters(*buffer, "q+-*xX/^vV0123456789._(l?p")){      //Check if first char in buffer is a legal
+        if(!IsCharacters(*buffer, "q+-*x/^v0123456789._(l?p")){      //Check if first char in buffer is a legit
             printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
             continue;
         }
+        if(buffer[0] == 'q') break;                                         //Quits the main loop if user entered q //Might want to prompt user if they are sure
+        else if(buffer[0] == '\0') continue;                                //In some cases fgets fill buffer with only whitespace
+        else if(buffer[0] == '?') { displayHelp(); continue; }              //Display help if user enters ?
         else if(buffer[0] == 'p'){                      //Prints out all the variables currently in memory if user enters p
             char nameBuffer[VARIABLE_MAX_NAME_LENGTH];
             nameBuffer[0] = '\0';
             printVariable(varRoot, nameBuffer, true, true, stdout, false);
             continue;
         }
-        
+        //TODO: check for potential bug?
         char* varName = checkForVariableAsssignment(buffer);                        //Extract varName if present
         calculation* currentCalculation;
         if(varName){

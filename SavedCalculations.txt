@@ -1,4 +1,8 @@
 C_banana = 34 - 234
+C_first = 5 * (3 + 2) + 4
+C_fourth = 5 + 3 * (3 * 2 + 4)
 C_myvar = _x_ + _z_
+C_second = 2 + 5 * (3 + 2) + 4
+C_third = 5 + 3 * (3 + 2 * 4)
 C_x = 8 + 3 * (9 + 5^2) / 10
 C_z = _x_ + 3

@@ -16,9 +16,20 @@ extern "C" {
 
 #define VARIABLE_MAX_NAME_LENGTH 21
 
+typedef enum operator{
+    OP_ADDITION,
+    OP_SUBTRACTION,
+    OP_MULTIPLICATION,
+    OP_DIVISION,
+    OP_ROOT,
+    OP_POWER,
+    OP_NOOP,
+    OP_EXTERNAL_CALCULATION
+} operator;
+
 //A binary tree data structure
 struct calculation{
-    int op;                 //Holds an enum value that determine the type of operation //The enum is found in Calculation.c
+    operator op;            //Holds an enum value that determine the type of operation //The enum is found in Calculation.c
     double value;           //The calculated value
     calculation* operand1;
     calculation* operand2;

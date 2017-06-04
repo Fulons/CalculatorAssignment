@@ -1,25 +1,14 @@
-#include <assert.h> //for assert
-#include <stdlib.h> //for malloc
-#include <stdio.h>  //for printf
-#include <string.h>   //for strtok
+#include <assert.h>         //for assert
+#include <stdlib.h>         //for malloc
+#include <stdio.h>          //for printf
+#include <string.h>         //for strlen
 #include "Calculation.h"
 #include "StringHelpers.h"
 #include "Operations.h"
 #include "Variable.h"
 #include "StringHelpers.h"  //For debugPrint
 
-enum operator{
-    OP_ADDITION,
-    OP_SUBTRACTION,
-    OP_MULTIPLICATION,
-    OP_DIVISION,
-    OP_ROOT,
-    OP_POWER,
-    OP_NOOP,
-    OP_EXTERNAL_CALCULATION
-};
-
-int getPresedenceInt(int op){
+int getPresedenceInt(operator op){
     switch(op){
         case OP_ADDITION:
         case OP_SUBTRACTION:
@@ -36,13 +25,13 @@ int getPresedenceInt(int op){
 }
 
 //returns true if op has higher precedence than opcomp
-bool hasHigherPrecedence(int op, int opcomp){
+bool hasHigherPrecedence(operator op, operator opcomp){
     assert((getPresedenceInt(op) != -1) && (getPresedenceInt(opcomp) != -1));
     return (getPresedenceInt(op) > getPresedenceInt(opcomp));
 }
 
 //Translate char into operation enum value
-int translateOperator(char op){     
+operator translateOperator(char op){     
     switch(op){
         case '+': return OP_ADDITION;
         case '-': return OP_SUBTRACTION;
@@ -91,7 +80,7 @@ calculation* parse(char* str, double lastResult){
                 currentCalculation->operand1Set = true;
             }
         }
-        else if(*str == 'L' || *str == 'l'){
+        else if(*str == 'l'){
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = newCalculation(currentCalculation);
                 currentCalculation->operand2->value = lastResult;
@@ -113,37 +102,54 @@ calculation* parse(char* str, double lastResult){
             else{   //TODO: ErrorCheck: Make sure Operand2 has been set?
                     //TODO: These following cases are very similar and should be refactored
                 if(hasHigherPrecedence(translateOperator(*str), currentCalculation->op)){
-                    currentCalculation->operand2->operand1 = newCalculation(currentCalculation->operand2);
-                    currentCalculation->operand2->operand1->value = currentCalculation->operand2->value;
-                    currentCalculation->operand2->value = 0;
-                    currentCalculation->operand2->operand1Set = true;
-                    currentCalculation = currentCalculation->operand2;
+                    calculation* newCalc = newCalculation(currentCalculation);
+                    newCalc->operand1 = currentCalculation->operand2;
+                    newCalc->operand1Set = true;
+                    
+                    currentCalculation->operand2 = newCalc;
+                    newCalc->operand1->parent = newCalc;
+                    
+                    currentCalculation = newCalc;
+                    
+                    //currentCalculation->operand2->operand1 = newCalculation(currentCalculation->operand2);
+                    //currentCalculation->operand2->operand1->value = currentCalculation->operand2->value;
+                    //currentCalculation->operand2->value = 0;
+                    //currentCalculation->operand2->operand1Set = true;
+                    //currentCalculation = currentCalculation->operand2;
                 }
                 else{
-                    if(currentCalculation->parent == NULL){
-                        currentCalculation->parent = newCalculation(NULL);
-                        currentCalculation->parent->operand1 = currentCalculation;
-                        currentCalculation = currentCalculation->parent;
-                        currentCalculation->operand1Set = true;
+                    if(currentCalculation->parent == NULL){                        
+                        calculation* newCalc = newCalculation(NULL);
+                        newCalc->operand1 = currentCalculation;
+                        newCalc->operand1Set = true;
+                        
+                        currentCalculation->parent = newCalc;
+                        currentCalculation = newCalc;
+                        
                         root = currentCalculation;
                     }
                     else if(currentCalculation->parent->operand1 == currentCalculation){
-                        currentCalculation->parent->operand1 = newCalculation(NULL);
-                        currentCalculation->parent->operand1->operand1 = currentCalculation;
-                        currentCalculation->parent->operand1->operand1Set = true;
-                        currentCalculation->parent->operand1->parent = currentCalculation->parent;
-                        currentCalculation->parent = currentCalculation->parent->operand1;
-                        currentCalculation = currentCalculation->parent;
-                        currentCalculation->operand1Set = true;
+                        calculation* newCalc = newCalculation(currentCalculation->parent);
+                        newCalc->operand1 = currentCalculation;
+                        newCalc->operand1Set = true;                        
+                        
+                        newCalc->parent->operand1 = newCalc;
+                        
+                        currentCalculation->parent = newCalc;
+                        currentCalculation = newCalc;
                     }
                     else{
-                        currentCalculation->parent->operand2 = newCalculation(NULL);
-                        currentCalculation->parent->operand2->operand1 = currentCalculation;
-                        currentCalculation->parent->operand2->operand1Set = true;
-                        currentCalculation->parent->operand2->parent = currentCalculation->parent;
-                        currentCalculation->parent = currentCalculation->parent->operand2;
-                        currentCalculation = currentCalculation->parent;
-                        currentCalculation->operand1Set = true;
+                        calculation* newCalc = newCalculation(currentCalculation->parent);
+                        newCalc->operand1 = currentCalculation;
+                        newCalc->operand1Set = true;
+                        
+                        newCalc->inBracket = currentCalculation->inBracket;
+                        currentCalculation->inBracket = false;
+                        
+                        newCalc->parent->operand2 = newCalc;
+                        
+                        currentCalculation->parent = newCalc;
+                        currentCalculation = newCalc;
                     }
                 }
             }
@@ -163,11 +169,8 @@ calculation* parse(char* str, double lastResult){
             ++str;
         }
         else if (*str == ')'){  //TODO: Set operator to * or handle it as an error if operation is not set
-            if(currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
-            else {
-                while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
-                currentCalculation = currentCalculation->parent;
-            }
+            while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
+            currentCalculation = currentCalculation->parent;
             ++str;
         }
         else if (*str == '_'){
