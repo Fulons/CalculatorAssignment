@@ -50,12 +50,14 @@ int main(int argc, char** argv) {
         calculation* currentCalculation;
         if(varName){
             currentCalculation = parse(&buffer[(strlen(varName) + 2)], lastResult); //Parse the string excluding the underscore, varName and equals symbol
+            if(!currentCalculation) continue;
             addVariable(varRoot, varName, currentCalculation);                      //Add the variable to the trie
-            free(varName);
+            free(varName);  //choosing not to set varName to NULL as it needs to be checked a few lines down
         }
         else currentCalculation = parse(&buffer[0], lastResult);                    //No variable, just parse the string
+        if(!currentCalculation) continue;
         lastResult = calculate(currentCalculation, varRoot);                        //Calculate the calculation
-        if(!varName) deleteCalculation(currentCalculation);                         //Calculation is not stored so free the memory
+        if(!varName) deleteCalculation(currentCalculation);                         //Calculation is not stored so free the memory. Even though the memory varName points to is freed it will not be NULL
         printf("Result:\t%g\n", lastResult);                                        //Display the result
     }
     

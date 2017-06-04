@@ -30,7 +30,6 @@ All variable names are not case sensitive.
 When last result is used in a variable the value of the last result is stored
 rather than the last result operation itself.
 
-
 Advanced example
 
 _x = 8 + 3 * (9 + 5 ^ 2) / 10
@@ -39,4 +38,4 @@ _z = _x_ + _y_
 
 
 TODO: When expression starts with operator assume last result as first operand
-TODO: Fix problem with \r\n....
+FIXED: Fix problem with \r\n....

@@ -118,7 +118,7 @@ calculation* parse(char* str, double lastResult){
                         currentCalculation = newCalc;                        
                         root = currentCalculation;
                     }
-                    else if(currentCalculation->parent->operand1 == currentCalculation){
+                    else if(currentCalculation->parent->operand1 == currentCalculation){    //TODO: research if this case will ever happen
                         calculation* newCalc = newCalculation(currentCalculation->parent);
                         newCalc->operand1 = currentCalculation;
                         newCalc->operand1Set = true;
@@ -165,8 +165,15 @@ calculation* parse(char* str, double lastResult){
                 currentCalculation->operand2->op = OP_EXTERNAL_CALCULATION;
                 char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH));
                 int i = 0;
-                do{ varName[i++] = *(++str); }
-                while(*str != '_'); //TODO: Fix potential infinite loop by checking for 2nd '_'
+                do{
+                    varName[i++] = *(++str);
+                    if(varName[i - 1] == '\0'){
+                        errorPrint("Unexpected symbol in string. Enter ? for help.\n");
+                        deleteCalculation(root);
+                        return NULL;
+                    }
+                }
+                while(*str != '_');
                 varName[i - 1] = '\0';
                 currentCalculation->operand2->externalCalculationName = varName;
                 
@@ -177,8 +184,15 @@ calculation* parse(char* str, double lastResult){
                 currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;
                 char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
                 int i = 0;
-                do{ varName[i++] = *(++str);}
-                while(*str != '_'); //TODO: Fix potential infinite loop by checking for 2nd '_'
+                do{
+                    varName[i++] = *(++str);
+                    if(varName[i - 1] == '\0'){
+                        errorPrint("Unexpected symbol in string. Enter ? for help.\n");
+                        deleteCalculation(root);
+                        return NULL;
+                    }
+                }
+                while(*str != '_');
                 varName[i - 1] = '\0';
                 currentCalculation->operand1->externalCalculationName = varName;
                 
@@ -187,7 +201,7 @@ calculation* parse(char* str, double lastResult){
             }
         }        
         else if(*str == '\0' || *str == '\r') parsing = false;
-        else { debugPrint("Unexpected symbol in string.\n"); return NULL; }
+        else { errorPrint("Unexpected symbol in string. Enter ? for help.\n"); deleteCalculation(root); return NULL; }    //Free memory and return NULL to indicate error
     }
     debugPrint("Done parsing\n");
     return root;
@@ -258,11 +272,15 @@ void parseFile(const char* filePath, variable* varRoot){
         if(buffer[0] == 'c'){            
             char* varName = checkForVariableAsssignment(&buffer[1]);
             if(varName){
-                calc = parse(&buffer[(strlen(varName) + 3)], lastResult);                
+                calc = parse(&buffer[(strlen(varName) + 3)], lastResult);
+                if(!calc) { free(varName); continue; }
                 addVariable(varRoot, varName, calc);
                 free(varName);
             }
-            else calc = parse(&buffer[1], lastResult);
+            else {
+                calc = parse(&buffer[1], lastResult);
+                if(!calc) { free(varName); continue; }
+            }
             //lastResult = calculate(calc, varRoot);
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
@@ -274,4 +292,3 @@ void parseFile(const char* filePath, variable* varRoot){
     fclose(file);
     free(buffer);
 }
-

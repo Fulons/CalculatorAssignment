@@ -18,6 +18,8 @@ extern "C" {
 #define debugPrint(a)
 #endif
 
+#define errorPrint(a) printf("Error: "); printf(a)
+    
 void removeWhitespace(char* str);
 bool IsCharacters(char c, const char* str);
 bool askUserYesOrNo(char* str);

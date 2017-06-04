@@ -69,7 +69,10 @@ char* checkForVariableAsssignment(char* str){
     if(str[0] == '_' && IsCharacters('=', str)){
         varBuffer = (char*)malloc(sizeof(char) * VARIABLE_MAX_NAME_LENGTH);
         int i = 0;
-        while(*str != '=') varBuffer[i++] = *(++str);
+        while(*str != '=') {            
+            varBuffer[i++] = *(++str);
+            if((varBuffer[i - 1] < 'a' || varBuffer[i - 1] > 'z') && varBuffer[i - 1] != '='){ free(varBuffer); return NULL;}
+        }
         varBuffer[i - 1] = '\0';
         ++str;
     }
