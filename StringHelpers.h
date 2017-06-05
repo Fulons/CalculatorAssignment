@@ -19,6 +19,7 @@ extern "C" {
 #define debugPrint(a, ...)
 #endif
 #define errorPrint(a, ...) printf("ERROR: "); printf(a, ##__VA_ARGS__)
+#define infoPrint(a, ...) printf("INFO: "); printf(a, ##__VA_ARGS__)
 
 //ConstString, ConstStringArray and string is mostly used as an aid to checking for self containing variables
     

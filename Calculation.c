@@ -84,23 +84,10 @@ void ParseFile(const char* filePath, Variable* varRoot){
         ToLowerCase(buffer);
         RemoveWhitespace(buffer);
         if(buffer[0] == 'c'){
-            char* varName = CheckForVariableAsssignment(&buffer[1]);
-            if(varName){
-                calc = Parse(&buffer[(strlen(varName) + 3)], lastResult);
-                if(!calc) { free(varName); continue; }
-                bool selfContaining = CheckForSelfContainingVariable(calc,CreateArrayOfStrings(varName), varRoot);
-                AddVariable(varRoot, varName, calc, selfContaining);
-                debugPrint("Loaded variable: %s\n", varName);
-                free(varName);
-            }
-            else {
-                calc = Parse(&buffer[1], lastResult);
-                if(!calc) {free(varName); continue; }                
-            }
-            //lastResult = Calculate(calc, varRoot);
+            ProcessBuffer(&buffer[1], &lastResult, varRoot, false, true, false);
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
-    }//fseek(file, 0, SEEK_END);
+    }
     CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, CreateString());
     CalcTrie(varRoot, varRoot);
     char name[VARIABLE_MAX_NAME_LENGTH];
@@ -143,7 +130,11 @@ Calculation* Parse(char* str, double lastResult){
         else if(IsCharacters(*str, "+-*/^v")){      //Operation 
                                                     //TODO: ErrorCheck: First operand set or is this first part of equation so lastValue should be used?
             if(currentCalculation->op == OP_NOOP){
-                assert(currentCalculation->operand1Set);
+                if(!currentCalculation->operand1Set) {  //If first symbol is an operator then use last result as first operand
+                    currentCalculation->operand1 = NewCalculation(currentCalculation);
+                    currentCalculation->operand1->value = lastResult;
+                    currentCalculation->operand1Set = true;
+                }
                 currentCalculation->op = TranslateOperator(*str);
                 ++str;
             }

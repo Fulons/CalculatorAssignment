@@ -1,0 +1,19 @@
+displayWelcomeMessage();
+if(userWantToLoadVariables){
+     loadVariablesFromFile();
+     displayStoredVariables();
+}
+bool running = true;
+while(running){
+	char* userInputString = getUserInput();
+	if(!inputValid()) continue;
+	switch(userInputString[0]){
+		case 'q': running = false; break;
+		case 'p': displayStoredVariables(); continue;
+		case '?': printHelp();
+		default:{
+					parse(userInputString);
+					displayresult();
+				}
+	}
+}

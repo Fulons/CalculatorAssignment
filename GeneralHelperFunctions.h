@@ -18,6 +18,8 @@
 extern "C" {
 #endif
 
+void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool checkSelfContaining, bool printVarName, bool printCalc);
+    
 //This checks a string if it has variable assignment and returns the name of the
 //variable or NULL if not found or any error was encountered
 //It also assures that the variable name is valid (only containing letters a-z)

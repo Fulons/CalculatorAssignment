@@ -7,8 +7,11 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "Variable.h"
+#include "Calculation.h"
 #include "GeneralHelperFunctions.h"
+#include "Typedefs.h"
 
 
 char* CheckForVariableAsssignment(char* str){
@@ -91,4 +94,35 @@ void DisplayHelp(){
     printf("|----------------|-----------|---------------|--------------------|\n");
     printf("|Print variables |   p       |   p           |Display list of vars|\n");
     printf("|----------------|-----------|---------------|--------------------|\n");
+}
+
+void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool checkSelfContaining, bool printVarName, bool printCalc){
+    char* varName = CheckForVariableAsssignment(buffer);
+    Calculation* calc;
+    if(varName){
+        calc = Parse(&buffer[strlen(varName) + 2], *lastResult);
+        if(!calc) return;
+        bool selfContaining = false;
+        if(checkSelfContaining || printCalc)
+            selfContaining = CheckForSelfContainingVariable(calc, CreateArrayOfStrings(varName), varRoot);
+        AddVariable(varRoot, varName, calc, selfContaining);
+        if(printCalc){
+            if(!checkSelfContaining) selfContaining = CheckForSelfContainingVariable(calc, CreateArrayOfStrings(varName), varRoot);
+            if(!selfContaining){
+                *lastResult = Calculate(calc, varRoot);
+                printf("%s = ", varName);
+                PrintCalculation(calc, stdout, true);
+            }
+        }
+        else if(printVarName) {infoPrint("Loaded variable: %s\n", varName);}
+        free(varName);
+    }
+    else{
+        calc = Parse(buffer, *lastResult);
+        if(calc) {
+            *lastResult = Calculate(calc, varRoot);
+            PrintCalculation(calc, stdout, true);
+            DeleteCalculation(calc);
+        }
+    }
 }
