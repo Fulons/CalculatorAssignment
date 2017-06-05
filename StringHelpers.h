@@ -39,9 +39,11 @@ typedef struct{
 void PushName(ConstStringArray* n, const char* str);            //Adds str to the end of the array
 void PopLastString(ConstStringArray* n);                        //Removes last entry in the array
 bool FindName(ConstStringArray* n, const char* str);            //Returns true if name is in array
-ConstStringArray* CreateArrayOfStrings(const char* firstStr);   //Allocates and initialises the array
+ConstStringArray* CreateConstStringArray(const char* firstStr);   //Allocates and initialises the array
 void DeleteArrayOfstring(ConstStringArray* n);                  //Frees the memory of the array
-
+ConstStringArray* GetUniqueList(ConstStringArray* n);
+int FindNumberOfInstances(ConstStringArray* n, const char* str);
+ConstStringArray* Merge(ConstStringArray* n, ConstStringArray* n2);
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Simple string struct
@@ -60,6 +62,7 @@ void DeleteString(string* str);             //Frees the memory of the string
 void RemoveWhitespace(char* str);           //Removes ' ' and '\t' from the string in addition to sort out '\b'. Only up to '\n', '\r' or '\0' and sets it to '\0'.
 bool IsCharacters(char c, const char* str); //Returns true if c exists in str
 void ToLowerCase(char* str);
+int StringCompare(const char* str, const char* str2);
 
 //Reads file until one of the characters in delim is found or until buffer is full.
 //Returns number of chars read

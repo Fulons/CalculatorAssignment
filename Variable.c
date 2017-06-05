@@ -7,7 +7,7 @@
 #include "GeneralHelperFunctions.h"
 
 Variable* NewVariable(){
-    Variable* var = (Variable*)malloc(sizeof(Variable));
+    Variable* var = MyMalloc(1, Variable);
     for(int i = 0; i < 26; i++){
         var->vars[i] = NULL;
     }
@@ -21,9 +21,13 @@ void DeleteVariable(Variable* var){
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++)
         if(var->vars[i]){
             DeleteVariable(var->vars[i]);
+            var->vars[i] = NULL;
         }
-    if(var->calc) free(var->calc);
-    free(var);
+    if(var->calc) {
+        DeleteCalculation(var->calc);
+        var->calc = NULL;
+    }
+    MyFree(var, Variable);
 }
 
 void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining){
@@ -81,15 +85,19 @@ void CalcTrie(Variable* var, Variable* varRoot){
 }
 
 void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRoot, string* varName){
-    if(var->calc)
-        if(CheckForSelfContainingVariable(var->calc, CreateArrayOfStrings(varName->str), varRoot))
+    if(varName == NULL) varName = CreateString();
+    if(var->calc){
+        ConstStringArray* arr = CreateConstStringArray(varName->str);
+        if(CheckForSelfContainingVariable(var->calc, arr, varRoot))
             var->isSelfContaining = true;
         else var->isSelfContaining = false;
+        DeleteArrayOfstring(arr);
+    }
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++){
         if(var->vars[i]) {
             CheckTrieVariablesForSelfContainingVariables(var->vars[i], varRoot, PushChar(varName, i + 'a'));
-            PopLastChar(varName);
+            PopLastChar(varName);            
         }
     }
+    if(varName->size == 0) DeleteString(varName);
 }
-

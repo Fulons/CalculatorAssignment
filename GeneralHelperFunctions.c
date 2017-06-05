@@ -13,15 +13,24 @@
 #include "GeneralHelperFunctions.h"
 #include "Typedefs.h"
 
-
+#ifdef DEBUG
+    int G_numAllocations = 0;
+    int G_numDeallocations = 0;
+    ConstStringArray* G_allocatedTypes = NULL;
+    ConstStringArray* G_deallocatedTypes = NULL;
+#endif
+    
 char* CheckForVariableAsssignment(char* str){
     char* varBuffer = NULL;
     if(str[0] == '_' && IsCharacters('=', str)){
-        varBuffer = (char*)malloc(sizeof(char) * VARIABLE_MAX_NAME_LENGTH);
+        varBuffer = MyMalloc(VARIABLE_MAX_NAME_LENGTH, char);
         int i = 0;
         while(*str != '=') {            
             varBuffer[i++] = *(++str);
-            if((varBuffer[i - 1] < 'a' || varBuffer[i - 1] > 'z') && varBuffer[i - 1] != '='){ free(varBuffer); return NULL;}
+            if((varBuffer[i - 1] < 'a' || varBuffer[i - 1] > 'z') && varBuffer[i - 1] != '='){
+                MyFree(varBuffer, char);
+                return NULL;
+            }
         }
         varBuffer[i - 1] = '\0';
         ++str;
@@ -103,11 +112,13 @@ void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool che
         calc = Parse(&buffer[strlen(varName) + 2], *lastResult);
         if(!calc) return;
         bool selfContaining = false;
-        if(checkSelfContaining || printCalc)
-            selfContaining = CheckForSelfContainingVariable(calc, CreateArrayOfStrings(varName), varRoot);
+        if(checkSelfContaining || printCalc){
+            ConstStringArray* arr = CreateConstStringArray(varName);
+            selfContaining = CheckForSelfContainingVariable(calc, arr, varRoot);
+            DeleteArrayOfstring(arr);
+        }
         AddVariable(varRoot, varName, calc, selfContaining);
         if(printCalc){
-            if(!checkSelfContaining) selfContaining = CheckForSelfContainingVariable(calc, CreateArrayOfStrings(varName), varRoot);
             if(!selfContaining){
                 *lastResult = Calculate(calc, varRoot);
                 printf("%s = ", varName);
@@ -115,7 +126,7 @@ void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool che
             }
         }
         else if(printVarName) {infoPrint("Loaded variable: %s\n", varName);}
-        free(varName);
+        MyFree(varName, char);
     }
     else{
         calc = Parse(buffer, *lastResult);

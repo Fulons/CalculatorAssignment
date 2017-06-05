@@ -22,6 +22,14 @@ CND_ARTIFACT_PATH_Release=dist/Release/Cygwin-Windows/calculator
 CND_PACKAGE_DIR_Release=dist/Release/Cygwin-Windows/package
 CND_PACKAGE_NAME_Release=calculator.tar
 CND_PACKAGE_PATH_Release=dist/Release/Cygwin-Windows/package/calculator.tar
+# Debug_Full_Memory configuration
+CND_PLATFORM_Debug_Full_Memory=Cygwin-Windows
+CND_ARTIFACT_DIR_Debug_Full_Memory=dist/Debug_Full_Memory/Cygwin-Windows
+CND_ARTIFACT_NAME_Debug_Full_Memory=calculator
+CND_ARTIFACT_PATH_Debug_Full_Memory=dist/Debug_Full_Memory/Cygwin-Windows/calculator
+CND_PACKAGE_DIR_Debug_Full_Memory=dist/Debug_Full_Memory/Cygwin-Windows/package
+CND_PACKAGE_NAME_Debug_Full_Memory=calculator.tar
+CND_PACKAGE_PATH_Debug_Full_Memory=dist/Debug_Full_Memory/Cygwin-Windows/package/calculator.tar
 #
 # include compiler specific variables
 #

@@ -52,28 +52,31 @@ operator TranslateOperator(char op){
 
 //Allocates and initiates a new calculation
 Calculation* NewCalculation(Calculation* parent){
-    Calculation* calc = (Calculation*)malloc(sizeof(Calculation));
+    Calculation* calc = MyMalloc(1, Calculation);
     calc->operand1 = NULL;
     calc->operand2 = NULL;
     calc->op = OP_NOOP;     //This is relied upon
     calc->parent = parent;
     calc->operand1Set = false;
     calc->inBracket = false;
+    calc->externalCalculationName = NULL;
     return calc;
 }
 
 //Recursively frees the memory of the calculation and all its children
 void DeleteCalculation(Calculation* calc){
-    if(calc->operand1) free(calc->operand1);
-    if(calc->operand2) free(calc->operand2);
-    if(calc->externalCalculationName) free(calc->externalCalculationName);
-    free(calc);
+    if(calc->operand1) DeleteCalculation(calc->operand1);
+    if(calc->operand2) DeleteCalculation(calc->operand2);
+    if(calc->externalCalculationName) {
+        MyFree(calc->externalCalculationName, char);
+    }
+    MyFree(calc, Calculation);
 }
 
 #define FILE_BUFFER_SIZE 1024
 
 void ParseFile(const char* filePath, Variable* varRoot){
-    char* buffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
+    char* buffer = MyMalloc(FILE_BUFFER_SIZE, char);
     FILE* file = fopen(filePath, "r");
     if(!file) { printf("Could not find file: %s", filePath); return; }
     
@@ -88,13 +91,13 @@ void ParseFile(const char* filePath, Variable* varRoot){
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
     }
-    CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, CreateString());
+    CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, NULL);
     CalcTrie(varRoot, varRoot);
     char name[VARIABLE_MAX_NAME_LENGTH];
     name[0] = '\0';
     PrintVariable(varRoot, name, true, true, stdout, false);
     fclose(file);
-    free(buffer);
+    MyFree(buffer, char);
 }
 
 //Parses the string into the binary tree of calculations
@@ -204,12 +207,13 @@ Calculation* Parse(char* str, double lastResult){
             ++str;
         }
         else if (*str == '_'){
-            char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
+            char* varName = MyMalloc(VARIABLE_MAX_NAME_LENGTH + 1, char);
             int i = 0;
             do{
                 varName[i++] = *(++str);
                 if(varName[i - 1] == '\0'){
                     errorPrint("Could not find end of variable. Did you forget to add _ after name? Enter ? for help.\n");
+                    MyFree(varName, char);
                     DeleteCalculation(root);
                     return NULL;
                 }
@@ -224,8 +228,8 @@ Calculation* Parse(char* str, double lastResult){
             }
             else{
                 currentCalculation->operand1 = NewCalculation(currentCalculation);
-                currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;                
-                currentCalculation->operand1->externalCalculationName = varName;                
+                currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;
+                currentCalculation->operand1->externalCalculationName = varName;
                 ++str;
                 currentCalculation->operand1Set = true;
             }
@@ -295,7 +299,6 @@ bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Vari
             for(int i = 0; i < n->numNames; i++)
                 printf("%s->", n->array[i]);
             printf("%s\n", calc->externalCalculationName);
-            DeleteArrayOfstring(n);
             return true;
         }
         else {
@@ -307,6 +310,5 @@ bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Vari
             }
         }
     }
-    if(n->numNames == 0) DeleteArrayOfstring(n);
     return false;
 }

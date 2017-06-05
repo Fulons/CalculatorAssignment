@@ -19,8 +19,9 @@
 #define DEFAULT_SAVED_VARIABLE_FILENAME "SavedCalculations.txt"
 
 int main(int argc, char** argv) {
+    MEMORY_DEBUG_INIT
     Variable* varRoot = NewVariable();                                  //Holds the root to the trie of variables
-    char* buffer = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);     //Buffer to store user input
+    char* buffer = MyMalloc(INPUT_BUFFER_SIZE, char);                   //Buffer to store user input
     double lastResult = 0;                                              //Holds result of last calculation
     WelcomeMessage();                                                   //Display welcome message
     if(AskUserYesOrNo("Do you want to load variables from last session?")){
@@ -36,13 +37,15 @@ int main(int argc, char** argv) {
     
     if(AskUserYesOrNo("Do you want to save your variables?")){                      //Save variables to file if user wish to
         FILE* file = fopen(DEFAULT_SAVED_VARIABLE_FILENAME, "w");
-        if(!file) errorPrint("Could not open save file: %s", DEFAULT_SAVED_VARIABLE_FILENAME);
+        if(!file) { errorPrint("Could not open save file: %s", DEFAULT_SAVED_VARIABLE_FILENAME); }
         char NameBuffer[VARIABLE_MAX_NAME_LENGTH];
         NameBuffer[0] = '\0';
         PrintVariable(varRoot, NameBuffer, true, true, file, true);
+        fclose(file);
     }
-    free(buffer);
+    MyFree(buffer, char);
     DeleteVariable(varRoot);
+    PRINT_MEMORY_ALLOCATIONS
     return (EXIT_SUCCESS);
 }
 
