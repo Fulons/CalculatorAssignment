@@ -37,7 +37,10 @@ extern "C" {
                                             uniqueVariableAllocations->array[i].str,\
                                             FindNumberOfInstances(G_allocatedTypes, uniqueVariableAllocations->array[i].str),\
                                             FindNumberOfInstances(G_deallocatedTypes, uniqueVariableAllocations->array[i].str));\
-                                        printf("NOTE: 3 Allocations of constStringArray and constString are\n      used for the purposes of this memory debug!");
+                                        printf("NOTE: 3 Allocations of constStringArray and constString are\n      used for the purposes of this memory debug!");\
+                                        free(G_allocatedTypes->array); free(G_allocatedTypes);\
+                                        free(G_deallocatedTypes->array); free(G_deallocatedTypes);
+                                        
                                             
     #ifdef MEMORY_DEBUG_FULL    //Does memory allocation and deallocation counting and prints out message every time memory is allocated or deallocated
         #define MyRealloc(ptr, num, type) (type*)realloc(ptr, sizeof(type) * (num)); printf("Rallocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))
