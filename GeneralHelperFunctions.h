@@ -27,18 +27,22 @@ extern "C" {
     extern ConstStringArray* G_deallocatedTypes;
     #define MEMORY_DEBUG_INIT   G_allocatedTypes = malloc(sizeof(ConstStringArray)); G_allocatedTypes->numNames = 0; G_allocatedTypes->array = malloc(sizeof(ConstString)); \
                                 G_deallocatedTypes = malloc(sizeof(ConstStringArray)); G_deallocatedTypes->numNames = 0; G_deallocatedTypes->array = malloc(sizeof(ConstString));
-    #define PRINT_MEMORY_ALLOCATIONS    ConstStringArray* uniqueAllocations = GetUniqueList(G_allocatedTypes);\
-                                        ConstStringArray* uniqueDeallocations = GetUniqueList(G_deallocatedTypes);\
-                                        ConstStringArray* uniqueVariableAllocations = GetUniqueList(Merge(uniqueAllocations, uniqueDeallocations));\
-                                        printf("Num allocations  : %u\n", G_numAllocations);\
-                                        printf("Num deallocations: %u\n", G_numDeallocations);\
-                                        for(int i = 0; i < uniqueVariableAllocations->numNames; ++i)\
-                                            printf("Type: %s\nNumAllocations  : %u\nNumDeallocations: %u\n",\
-                                            uniqueVariableAllocations->array[i].str,\
-                                            FindNumberOfInstances(G_allocatedTypes, uniqueVariableAllocations->array[i].str),\
-                                            FindNumberOfInstances(G_deallocatedTypes, uniqueVariableAllocations->array[i].str));\
-                                        printf("NOTE: 3 Allocations of constStringArray and constString are\n      used for the purposes of this memory debug!");
-                                            
+    #define MEMORY_DEBUG_PRINT_ALLOCATIONS  ConstStringArray* uniqueAllocations = GetUniqueList(G_allocatedTypes);\
+                                            ConstStringArray* uniqueDeallocations = GetUniqueList(G_deallocatedTypes);\
+                                            ConstStringArray* uniqueVariableAllocations = GetUniqueList(Merge(uniqueAllocations, uniqueDeallocations));\
+                                            printf("Num allocations  : %u\n", G_numAllocations);\
+                                            printf("Num deallocations: %u\n", G_numDeallocations);\
+                                            for(int i = 0; i < uniqueVariableAllocations->numNames; ++i)\
+                                                printf("Type: %s\nAllocations  : %u\nDeallocations: %u\n",\
+                                                uniqueVariableAllocations->array[i].str,\
+                                                FindNumberOfInstances(G_allocatedTypes, uniqueVariableAllocations->array[i].str),\
+                                                FindNumberOfInstances(G_deallocatedTypes, uniqueVariableAllocations->array[i].str));\
+                                            printf("NOTE: 3 Allocations of constStringArray and constString are\n      used for the purposes of this memory debug!");\
+                                            free(G_allocatedTypes->array); free(G_allocatedTypes);\
+                                            free(G_deallocatedTypes->array); free(G_deallocatedTypes);\
+                                            DeleteArrayOfstring(uniqueAllocations);\
+                                            DeleteArrayOfstring(uniqueDeallocations);\
+                                            DeleteArrayOfstring(uniqueVariableAllocations);
     #ifdef MEMORY_DEBUG_FULL    //Does memory allocation and deallocation counting and prints out message every time memory is allocated or deallocated
         #define MyRealloc(ptr, num, type) (type*)realloc(ptr, sizeof(type) * (num)); printf("Rallocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))
         #define MyMalloc(num, type) (type*)malloc(sizeof(type) * (num)); G_numAllocations++; printf("Allocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))

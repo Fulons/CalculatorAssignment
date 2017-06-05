@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
     }
     MyFree(buffer, char);
     DeleteVariable(varRoot);
-    PRINT_MEMORY_ALLOCATIONS
+    MEMORY_DEBUG_PRINT_ALLOCATIONS
     return (EXIT_SUCCESS);
 }
 
