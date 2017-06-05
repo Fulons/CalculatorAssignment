@@ -18,6 +18,27 @@
 #define DEFAULT_SAVED_VARIABLE_FILENAME "SavedCalculations.txt"
 
 
+//Returns true if the input has been handled by the the preprocess
+bool PreProcess(char* buffer, Variable* varRoot){
+    RemoveWhitespace(buffer);                   //Remove all whitespace    
+    if(buffer[0] == '\0') return true;             //In some cases stdin will have some remainning whitespace this will resolve that
+    ToLowerCase(buffer);
+    if(!IsCharacters(*buffer, "q+-*x/^v0123456789._(l?p")){      //Check if first char in buffer is a legit
+        printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
+        return true;
+    }
+    if(buffer[0] == 'q') return false;                             //Quits the main loop if user entered q //Might want to prompt user if they are sure
+    else if(buffer[0] == '\0') return true;                    //In some cases fgets fill buffer with only whitespace
+    else if(buffer[0] == '?') { displayHelp(); return true; }  //Display help if user enters ?
+    else if(buffer[0] == 'p'){                              //Prints out all the variables currently in memory if user enters p
+        char nameBuffer[VARIABLE_MAX_NAME_LENGTH];
+        nameBuffer[0] = '\0';
+        PrintVariable(varRoot, nameBuffer, true, true, stdout, false);
+        return true;
+    }
+    return false;
+}
+
 int main(int argc, char** argv) {
     Variable* varRoot = NewVariable();                                  //Holds the root to the trie of variables
     char* buffer = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);     //Buffer to store user input
@@ -29,31 +50,21 @@ int main(int argc, char** argv) {
 
     while(true){
         fgets(buffer, INPUT_BUFFER_SIZE, stdin);    //Get input from user
-        RemoveWhitespace(buffer);                   //Remove all whitespace
-        if(buffer[0] == '\0') continue;             //In some cases stdin will have some remainning whitespace this will resolve that
-        ToLowerCase(buffer);
-        if(!IsCharacters(*buffer, "q+-*x/^v0123456789._(l?p")){      //Check if first char in buffer is a legit
-            printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
-            continue;
-        }
-        if(buffer[0] == 'q') break;                             //Quits the main loop if user entered q //Might want to prompt user if they are sure
-        else if(buffer[0] == '\0') continue;                    //In some cases fgets fill buffer with only whitespace
-        else if(buffer[0] == '?') { displayHelp(); continue; }  //Display help if user enters ?
-        else if(buffer[0] == 'p'){                              //Prints out all the variables currently in memory if user enters p
-            char nameBuffer[VARIABLE_MAX_NAME_LENGTH];
-            nameBuffer[0] = '\0';
-            PrintVariable(varRoot, nameBuffer, true, true, stdout, false);
-            continue;
-        }
+        if(PreProcess(buffer, varRoot)) continue;
+        else if(buffer[0] == 'q') break;    //Quits the main loop if user entered q //Might want to prompt user if they are sure
         //TODO: check for potential bug?
         char* varName = CheckForVariableAsssignment(buffer);                        //Extract varName if present
         Calculation* currentCalculation;
         if(varName){
             currentCalculation = Parse(&buffer[(strlen(varName) + 2)], lastResult); //Parse the string excluding the underscore, varName and equals symbol
-            if(!currentCalculation) continue;
-            AddVariable(varRoot, varName, currentCalculation);                      //Add the variable to the trie
-            CheckForSelfContainingVariable(currentCalculation, CreateArrayOfStrings(varName), varRoot);
+            if(!currentCalculation) continue;            
+            bool selfContaining = CheckForSelfContainingVariable(currentCalculation, CreateArrayOfStrings(varName), varRoot);
+            AddVariable(varRoot, varName, currentCalculation, selfContaining);                      //Add the variable to the trie
             free(varName);  //choosing not to set varName to NULL as it needs to be checked a few lines down
+            if(selfContaining) {
+                CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, CreateString());
+                continue;
+            }
         }
         else currentCalculation = Parse(&buffer[0], lastResult);                    //No variable, just parse the string
         if(!currentCalculation) continue;

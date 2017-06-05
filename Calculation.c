@@ -209,7 +209,6 @@ Calculation* Parse(char* str, double lastResult){
         else if(*str == '\0' || *str == '\r') parsing = false;
         else { errorPrint("Unexpected symbol in string. Enter ? for help.\n"); DeleteCalculation(root); return NULL; }    //Free memory and return NULL to indicate error
     }
-    debugPrint("Done parsing\n");
     return root;
 }
 
@@ -273,25 +272,27 @@ void ParseFile(const char* filePath, Variable* varRoot){
     double lastResult = 0;
     while(true){
         if(ReadFileToDelim(buffer, sizeof(char) * FILE_BUFFER_SIZE, "\n\r", file) == 0) break;        
-        ToLowerCase(buffer);        
+        ToLowerCase(buffer);
         RemoveWhitespace(buffer);
-        if(buffer[0] == 'c'){            
+        if(buffer[0] == 'c'){
             char* varName = CheckForVariableAsssignment(&buffer[1]);
             if(varName){
                 calc = Parse(&buffer[(strlen(varName) + 3)], lastResult);
                 if(!calc) { free(varName); continue; }
-                AddVariable(varRoot, varName, calc);
-                CheckForSelfContainingVariable(calc,CreateArrayOfStrings(varName), varRoot);
+                bool selfContaining = CheckForSelfContainingVariable(calc,CreateArrayOfStrings(varName), varRoot);
+                AddVariable(varRoot, varName, calc, selfContaining);
+                debugPrint("Loaded variable: %s\n", varName);
                 free(varName);
             }
             else {
                 calc = Parse(&buffer[1], lastResult);
-                if(!calc) { free(varName); continue; }
+                if(!calc) {free(varName); continue; }                
             }
             //lastResult = Calculate(calc, varRoot);
         }
         if(feof(file) != 0 || buffer[0] == '#') break;
     }//fseek(file, 0, SEEK_END);
+    CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, CreateString());
     CalcTrie(varRoot, varRoot);
     char name[VARIABLE_MAX_NAME_LENGTH];
     name[0] = '\0';
@@ -300,15 +301,28 @@ void ParseFile(const char* filePath, Variable* varRoot){
     free(buffer);
 }
 
-//typedef union{
-//    char* c;
-//    struct{
-//        char* c;
-//        int i;
-//    };
-//} array;
-//
-//void whohoo(){
-//    array arr;
-//    arr[2] = 2;???
-//}
+//Recursive function that check for self containing variables in a calculation
+bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot){
+    if(calc->operand1 && CheckForSelfContainingVariable(calc->operand1, n, varRoot)) return true;
+    if(calc->operand2 && CheckForSelfContainingVariable(calc->operand2, n, varRoot)) return true;
+    if(calc->op == OP_EXTERNAL_CALCULATION){
+        if(FindName(n, calc->externalCalculationName)){
+            debugPrint("Found self containing variable: ");
+            for(int i = 0; i < n->numNames; i++)
+                printf("%s->", n->array[i]);
+            printf("%s\n", calc->externalCalculationName);
+            DeleteArrayOfstring(n);
+            return true;
+        }
+        else {
+            Calculation* externalCalc = FindCalculation(varRoot, calc->externalCalculationName);
+            if(externalCalc) {
+                PushName(n, calc->externalCalculationName);
+                if(CheckForSelfContainingVariable(externalCalc, n, varRoot)) return true;
+                PopLastString(n);
+            }
+        }
+    }
+    if(n->numNames == 0) DeleteArrayOfstring(n);
+    return false;
+}

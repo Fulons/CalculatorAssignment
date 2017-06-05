@@ -79,6 +79,7 @@ ConstStringArray* CreateArrayOfStrings(const char* firstStr){
     ConstStringArray* ret = malloc(sizeof(ConstStringArray));
     ret->array = malloc(sizeof(CString));
     ret->array[0].str = firstStr;
+    ret->numNames = 1;
     return ret;
 }
 
@@ -89,19 +90,20 @@ void DeleteArrayOfstring(ConstStringArray* n){
 }
 
 string* PushChar(string* str, char c){
-    str->str = realloc(str->str, ++str->size + 1);
+    str->str = realloc(str->str, sizeof(char) * (++str->size + 1));
     str->str[str->size - 1] = c;
     str->str[str->size] = '\0';
     return str;
 }
 string* PopLastChar(string* str){
-    str->str = realloc(str->str, --str->size + 1);
+    str->str = realloc(str->str, sizeof(char) * (--str->size + 1));
     str->str[str->size] = '\0';
     return str;
 }
 
 string* CreateString(){    
     string* str = malloc(sizeof(string));
+    str->str = malloc(sizeof(char));
     str->size = 0;
     return str;
 }

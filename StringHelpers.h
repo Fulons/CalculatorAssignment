@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 #ifdef DEBUG
-#define debugPrint(a) printf("DEBUG: "); printf(a)
+#define debugPrint(a, ...) printf("DEBUG: "); printf(a, ##__VA_ARGS__)
 #else
 #define debugPrint(a)
 #endif

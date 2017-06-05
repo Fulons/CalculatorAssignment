@@ -23,16 +23,22 @@ extern "C" {
 struct Variable{
     Variable* vars[VARIABLE_TRIE_WIDTH];
     Calculation* calc;
+    bool isSelfContaining;
 };
+
 
 Variable* NewVariable();
 void DeleteVariable(Variable* var);
-void AddVariable(Variable* node, const char* name, Calculation* calc);
+
+void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining);
 Calculation* FindCalculation(Variable* node, const char* name);
 void PrintVariable(Variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
-char* CheckForVariableAsssignment(char* str);
+
+char* CheckForVariableAsssignment(char* str);////////////////
+
 void CalcTrie(Variable* var, Variable* varRoot);
-bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot);
+void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRoot, string* varName);
+
 
 #ifdef __cplusplus
 }

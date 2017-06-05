@@ -13,6 +13,7 @@ extern "C" {
 #endif
     
 #include "Typedefs.h"
+#include "StringHelpers.h"
 
 #define VARIABLE_MAX_NAME_LENGTH 21
 
@@ -47,7 +48,7 @@ Calculation* Parse(char* str, double lastResult);           //Parses a string co
 double Calculate(Calculation* calc, Variable* node);        //Do the actual calculation of a single calculation tree
 
 void PrintCalculation(Calculation* calc, FILE* file, bool printResult); //To print to a loadable file printResult must be false
-
+bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot);
 #ifdef __cplusplus
 }
 #endif

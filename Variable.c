@@ -12,6 +12,7 @@ Variable* NewVariable(){
         var->vars[i] = NULL;
     }
     var->calc = NULL;
+    var->isSelfContaining = false;
     return var;
 }
 
@@ -27,17 +28,22 @@ void DeleteVariable(Variable* var){
 }
 
 //Recursive function to add a calculation to the variable trie
-void AddVariable(Variable* node, const char* name, Calculation* calc){
+void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining){
     if(*name == '\0'){          //This indicates that the correct location has been found
         if(node->calc){         //If variable already exist ask the user if it should be replaced with the new one or not
-            if(AskUserYesOrNo("You sure you want to replace this variable?"))
+            if(AskUserYesOrNo("You sure you want to replace this variable?")){
                 node->calc = calc;
+                node->isSelfContaining = selfContaining;
+            }
         }
-        else node->calc = calc;
+        else {
+            node->calc = calc;
+            node->isSelfContaining = selfContaining;
+        }
         return;
     }
     if(node->vars[*name - 'a'] == NULL) node->vars[*name - 'a'] = NewVariable();    //Allocate if needed
-    AddVariable(node->vars[*name - 'a'], &name[1], calc);                           //Continue traversing the trie
+    AddVariable(node->vars[*name - 'a'], &name[1], calc, selfContaining);           //Continue traversing the trie
 }
 
 //Recursive function that finds a calculation in the trie
@@ -50,12 +56,13 @@ Calculation* FindCalculation(Variable* node, const char* name){
 //Recursive function that prints the stored variables in the trie
 void PrintVariable(Variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile){
     if(var->calc) {
+        if(var->isSelfContaining && !printToSaveFile) { errorPrint("SELF CONTAINING: "); }
         if(!printCalc) fprintf(file, "_%s = %g\n", varName, var->calc->value);
         else {
             if(printToSaveFile) fprintf(file, "C");
             fprintf(file, "_%s = ", varName);
             PrintCalculation(var->calc, file, !printToSaveFile);
-        }
+        }        
     }    
     if(printChildren){
         int nameLength = strlen(varName);               //This should be the same as the current depth of the trie
@@ -89,7 +96,7 @@ char* CheckForVariableAsssignment(char* str){
 
 //Traverses the trie and recalculate all variables
 void CalcTrie(Variable* var, Variable* varRoot){
-    if(var->calc) Calculate(var->calc, varRoot);
+    if(var->calc && !var->isSelfContaining) Calculate(var->calc, varRoot);
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++){
         if(var->vars[i]) CalcTrie(var->vars[i], varRoot);
     }
@@ -97,34 +104,15 @@ void CalcTrie(Variable* var, Variable* varRoot){
 
 //Traverses the trie and check every child for self containing variables
 void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRoot, string* varName){
-    if(var->calc) CheckForSelfContainingVariable(var->calc, CreateArrayOfStrings(varName->str), varRoot);
+    if(var->calc)
+        if(CheckForSelfContainingVariable(var->calc, CreateArrayOfStrings(varName->str), varRoot))
+            var->isSelfContaining = true;
+        else var->isSelfContaining = false;
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++){
         if(var->vars[i]) {
-            CheckTrieVariablesForSelfContainingVariables(var->vars[i], varRoot, PushChar(varName, i - 'a'));
+            CheckTrieVariablesForSelfContainingVariables(var->vars[i], varRoot, PushChar(varName, i + 'a'));
             PopLastChar(varName);
         }
     }
 }
 
-//Recursive function that check for self containing variables in a calculation
-bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot){
-    if(calc->operand1 && CheckForSelfContainingVariable(calc->operand1, n, varRoot)) return true;
-    if(calc->operand2 && CheckForSelfContainingVariable(calc->operand2, n, varRoot)) return true;
-    if(calc->op == OP_EXTERNAL_CALCULATION){
-        if(FindName(n, calc->externalCalculationName)){
-            printf("Found self containing variable: %s in %s", calc->externalCalculationName, n->array->str);
-            DeleteArrayOfstring(n);
-            return true;
-        }
-        else {
-            Calculation* externalCalc = FindCalculation(varRoot, calc->externalCalculationName);
-            if(externalCalc) {
-                PushName(n, externalCalc->externalCalculationName);
-                if(CheckForSelfContainingVariable(externalCalc, n, varRoot)) return true;
-                PopLastString(n);
-            }
-        }
-    }
-    if(n->numNames == 1) DeleteArrayOfstring(n);
-    return false;
-}
