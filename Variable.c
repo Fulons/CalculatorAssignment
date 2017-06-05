@@ -4,8 +4,8 @@
 #include "Variable.h"
 #include "Calculation.h"
 #include "StringHelpers.h"
+#include "GeneralHelperFunctions.h"
 
-//Allocates and initialises a new variable
 Variable* NewVariable(){
     Variable* var = (Variable*)malloc(sizeof(Variable));
     for(int i = 0; i < 26; i++){
@@ -16,7 +16,6 @@ Variable* NewVariable(){
     return var;
 }
 
-//Free the memory of the variable and all its children
 void DeleteVariable(Variable* var){
     if(!var) return;
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++)
@@ -27,7 +26,6 @@ void DeleteVariable(Variable* var){
     free(var);
 }
 
-//Recursive function to add a calculation to the variable trie
 void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining){
     if(*name == '\0'){          //This indicates that the correct location has been found
         if(node->calc){         //If variable already exist ask the user if it should be replaced with the new one or not
@@ -46,7 +44,6 @@ void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfC
     AddVariable(node->vars[*name - 'a'], &name[1], calc, selfContaining);           //Continue traversing the trie
 }
 
-//Recursive function that finds a calculation in the trie
 Calculation* FindCalculation(Variable* node, const char* name){
     if(!node || !name) return NULL;
     if(*name == '\0') return node->calc;
@@ -76,25 +73,6 @@ void PrintVariable(Variable* var, char* varName, bool printChildren, bool printC
     }
 }
 
-//This checks a string if it has variable assignment and returns the name of the
-//variable or NULL if not found or any error was encountered
-//It also assures that the variable name is valid (only containing letters a-z)
-char* CheckForVariableAsssignment(char* str){
-    char* varBuffer = NULL;
-    if(str[0] == '_' && IsCharacters('=', str)){
-        varBuffer = (char*)malloc(sizeof(char) * VARIABLE_MAX_NAME_LENGTH);
-        int i = 0;
-        while(*str != '=') {            
-            varBuffer[i++] = *(++str);
-            if((varBuffer[i - 1] < 'a' || varBuffer[i - 1] > 'z') && varBuffer[i - 1] != '='){ free(varBuffer); return NULL;}
-        }
-        varBuffer[i - 1] = '\0';
-        ++str;
-    }
-    return varBuffer;
-}
-
-//Traverses the trie and recalculate all variables
 void CalcTrie(Variable* var, Variable* varRoot){
     if(var->calc && !var->isSelfContaining) Calculate(var->calc, varRoot);
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++){
@@ -102,7 +80,6 @@ void CalcTrie(Variable* var, Variable* varRoot){
     }
 }
 
-//Traverses the trie and check every child for self containing variables
 void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRoot, string* varName){
     if(var->calc)
         if(CheckForSelfContainingVariable(var->calc, CreateArrayOfStrings(varName->str), varRoot))

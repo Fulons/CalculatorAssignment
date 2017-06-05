@@ -36,6 +36,7 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/Calculation.o \
+	${OBJECTDIR}/GeneralHelperFunctions.o \
 	${OBJECTDIR}/Operations.o \
 	${OBJECTDIR}/StringHelpers.o \
 	${OBJECTDIR}/Variable.o \
@@ -70,6 +71,11 @@ ${OBJECTDIR}/Calculation.o: Calculation.c
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Calculation.o Calculation.c
+
+${OBJECTDIR}/GeneralHelperFunctions.o: GeneralHelperFunctions.c
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.c) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/GeneralHelperFunctions.o GeneralHelperFunctions.c
 
 ${OBJECTDIR}/Operations.o: Operations.c
 	${MKDIR} -p ${OBJECTDIR}

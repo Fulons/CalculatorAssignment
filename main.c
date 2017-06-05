@@ -13,37 +13,16 @@
 #include "Calculation.h"
 #include "Variable.h"
 #include "StringHelpers.h"
+#include "GeneralHelperFunctions.h"
 
 #define INPUT_BUFFER_SIZE 1024
 #define DEFAULT_SAVED_VARIABLE_FILENAME "SavedCalculations.txt"
-
-
-//Returns true if the input has been handled by the the preprocess
-bool PreProcess(char* buffer, Variable* varRoot){
-    RemoveWhitespace(buffer);                   //Remove all whitespace    
-    if(buffer[0] == '\0') return true;             //In some cases stdin will have some remainning whitespace this will resolve that
-    ToLowerCase(buffer);
-    if(!IsCharacters(*buffer, "q+-*x/^v0123456789._(l?p")){      //Check if first char in buffer is a legit
-        printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
-        return true;
-    }
-    if(buffer[0] == 'q') return false;                             //Quits the main loop if user entered q //Might want to prompt user if they are sure
-    else if(buffer[0] == '\0') return true;                    //In some cases fgets fill buffer with only whitespace
-    else if(buffer[0] == '?') { displayHelp(); return true; }  //Display help if user enters ?
-    else if(buffer[0] == 'p'){                              //Prints out all the variables currently in memory if user enters p
-        char nameBuffer[VARIABLE_MAX_NAME_LENGTH];
-        nameBuffer[0] = '\0';
-        PrintVariable(varRoot, nameBuffer, true, true, stdout, false);
-        return true;
-    }
-    return false;
-}
 
 int main(int argc, char** argv) {
     Variable* varRoot = NewVariable();                                  //Holds the root to the trie of variables
     char* buffer = (char*)malloc(sizeof(char) * INPUT_BUFFER_SIZE);     //Buffer to store user input
     double lastResult = 0;                                              //Holds result of last calculation
-    welcomeMessage();                                                   //Display welcome message
+    WelcomeMessage();                                                   //Display welcome message
     if(AskUserYesOrNo("Do you want to load variables from last session?")){
         ParseFile(DEFAULT_SAVED_VARIABLE_FILENAME, varRoot);            //Load last saved variables
     }

@@ -26,17 +26,19 @@ struct Variable{
     bool isSelfContaining;
 };
 
+Variable* NewVariable();            //Allocates memory and initialises a Variable struct
+void DeleteVariable(Variable* var); //Recuresively frees the memory of itself and children
 
-Variable* NewVariable();
-void DeleteVariable(Variable* var);
-
+//Recursive function to add a calculation to the variable trie
 void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining);
+//Recursive function that finds and returns a calculation in the trie or NULL if not found
 Calculation* FindCalculation(Variable* node, const char* name);
+//Prints variables to file or console
 void PrintVariable(Variable* var, char* varName, bool printChildren, bool printCalc, FILE* file, bool printToSaveFile);
 
-char* CheckForVariableAsssignment(char* str);////////////////
-
+//Traverses the trie and recalculate all variables
 void CalcTrie(Variable* var, Variable* varRoot);
+//Traverses the trie and check every child for self containing variables
 void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRoot, string* varName);
 
 

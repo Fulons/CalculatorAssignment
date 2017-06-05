@@ -7,6 +7,7 @@
 #include "Operations.h"
 #include "Variable.h"
 #include "StringHelpers.h"  //For debugPrint
+#include "GeneralHelperFunctions.h"
 
 //Helper function for hasHigherPrecedence function
 int GetPresedenceInt(operator op){
@@ -47,6 +48,8 @@ operator TranslateOperator(char op){
     }
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //Allocates and initiates a new calculation
 Calculation* NewCalculation(Calculation* parent){
     Calculation* calc = (Calculation*)malloc(sizeof(Calculation));
@@ -67,8 +70,47 @@ void DeleteCalculation(Calculation* calc){
     free(calc);
 }
 
-//This is one of the main functions of the program
-//It parses the string into the binary tree of calculations
+#define FILE_BUFFER_SIZE 1024
+
+void ParseFile(const char* filePath, Variable* varRoot){
+    char* buffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
+    FILE* file = fopen(filePath, "r");
+    if(!file) { printf("Could not find file: %s", filePath); return; }
+    
+    Calculation* calc = NULL;
+    double lastResult = 0;
+    while(true){
+        if(ReadFileToDelim(buffer, sizeof(char) * FILE_BUFFER_SIZE, "\n\r", file) == 0) break;        
+        ToLowerCase(buffer);
+        RemoveWhitespace(buffer);
+        if(buffer[0] == 'c'){
+            char* varName = CheckForVariableAsssignment(&buffer[1]);
+            if(varName){
+                calc = Parse(&buffer[(strlen(varName) + 3)], lastResult);
+                if(!calc) { free(varName); continue; }
+                bool selfContaining = CheckForSelfContainingVariable(calc,CreateArrayOfStrings(varName), varRoot);
+                AddVariable(varRoot, varName, calc, selfContaining);
+                debugPrint("Loaded variable: %s\n", varName);
+                free(varName);
+            }
+            else {
+                calc = Parse(&buffer[1], lastResult);
+                if(!calc) {free(varName); continue; }                
+            }
+            //lastResult = Calculate(calc, varRoot);
+        }
+        if(feof(file) != 0 || buffer[0] == '#') break;
+    }//fseek(file, 0, SEEK_END);
+    CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, CreateString());
+    CalcTrie(varRoot, varRoot);
+    char name[VARIABLE_MAX_NAME_LENGTH];
+    name[0] = '\0';
+    PrintVariable(varRoot, name, true, true, stdout, false);
+    fclose(file);
+    free(buffer);
+}
+
+//Parses the string into the binary tree of calculations
 Calculation* Parse(char* str, double lastResult){
     Calculation* currentCalculation = NewCalculation(NULL);
     Calculation* root = currentCalculation; //The root might change while parsing. See design documentation.
@@ -235,6 +277,7 @@ double Calculate(Calculation* calc, Variable* node){    //recursive
     return calc->value;
 }
 
+//The recursive part of PrintCalculation function
 void PrintCalculationRecursive(Calculation* calc, FILE* file, bool printResult){
     if(calc->inBracket) fprintf(file, "(");
     if(calc->operand1) PrintCalculationRecursive(calc->operand1, file, printResult);
@@ -261,47 +304,6 @@ void PrintCalculation(Calculation* calc, FILE* file, bool printResult){
     else fprintf(file, "\r\n");
 }
 
-#define FILE_BUFFER_SIZE 1024
-
-void ParseFile(const char* filePath, Variable* varRoot){
-    char* buffer = (char*)malloc(sizeof(char) * FILE_BUFFER_SIZE);
-    FILE* file = fopen(filePath, "r");
-    if(!file) { printf("Could not find file: %s", filePath); return; }
-    
-    Calculation* calc = NULL;
-    double lastResult = 0;
-    while(true){
-        if(ReadFileToDelim(buffer, sizeof(char) * FILE_BUFFER_SIZE, "\n\r", file) == 0) break;        
-        ToLowerCase(buffer);
-        RemoveWhitespace(buffer);
-        if(buffer[0] == 'c'){
-            char* varName = CheckForVariableAsssignment(&buffer[1]);
-            if(varName){
-                calc = Parse(&buffer[(strlen(varName) + 3)], lastResult);
-                if(!calc) { free(varName); continue; }
-                bool selfContaining = CheckForSelfContainingVariable(calc,CreateArrayOfStrings(varName), varRoot);
-                AddVariable(varRoot, varName, calc, selfContaining);
-                debugPrint("Loaded variable: %s\n", varName);
-                free(varName);
-            }
-            else {
-                calc = Parse(&buffer[1], lastResult);
-                if(!calc) {free(varName); continue; }                
-            }
-            //lastResult = Calculate(calc, varRoot);
-        }
-        if(feof(file) != 0 || buffer[0] == '#') break;
-    }//fseek(file, 0, SEEK_END);
-    CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, CreateString());
-    CalcTrie(varRoot, varRoot);
-    char name[VARIABLE_MAX_NAME_LENGTH];
-    name[0] = '\0';
-    PrintVariable(varRoot, name, true, true, stdout, false);
-    fclose(file);
-    free(buffer);
-}
-
-//Recursive function that check for self containing variables in a calculation
 bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot){
     if(calc->operand1 && CheckForSelfContainingVariable(calc->operand1, n, varRoot)) return true;
     if(calc->operand2 && CheckForSelfContainingVariable(calc->operand2, n, varRoot)) return true;

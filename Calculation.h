@@ -24,13 +24,13 @@ typedef enum operator{
     OP_DIVISION,
     OP_ROOT,
     OP_POWER,
-    OP_NOOP,
-    OP_EXTERNAL_CALCULATION
+    OP_NOOP,                    //Default value, means the calculation have a constant value
+    OP_EXTERNAL_CALCULATION     //This indicates an external calculation stored in a variable.
 } operator;
 
 //A binary tree data structure
 struct Calculation{
-    operator op;            //Holds an enum value that determine the type of operation //The enum is found in Calculation.c
+    operator op;            //Holds an enum value that determine the type of operation
     double value;           //The calculated value
     Calculation* operand1;
     Calculation* operand2;
@@ -40,7 +40,7 @@ struct Calculation{
     char* externalCalculationName;  //If op is external this will store the name of the variable it is stored in
 };
 
-Calculation* NewCalculation(Calculation* parent);   //Allocates memory and initialise
+Calculation* NewCalculation(Calculation* parent);   //Allocates memory and initialise a calculation struct
 void DeleteCalculation(Calculation* calc);          //Frees the memory and the memory of its children
 
 void ParseFile(const char* filePath, Variable* varRoot);    //Parses a file of calculations
@@ -48,7 +48,11 @@ Calculation* Parse(char* str, double lastResult);           //Parses a string co
 double Calculate(Calculation* calc, Variable* node);        //Do the actual calculation of a single calculation tree
 
 void PrintCalculation(Calculation* calc, FILE* file, bool printResult); //To print to a loadable file printResult must be false
-bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot);
+
+//Recursive function that check for self containing variables in a calculation.
+//To avoid infinite loops
+bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot); 
+
 #ifdef __cplusplus
 }
 #endif
