@@ -130,10 +130,15 @@ Calculation* Parse(char* str, double lastResult){
         else if(IsCharacters(*str, "+-*/^v")){      //Operation 
                                                     //TODO: ErrorCheck: First operand set or is this first part of equation so lastValue should be used?
             if(currentCalculation->op == OP_NOOP){
-                if(!currentCalculation->operand1Set) {  //If first symbol is an operator then use last result as first operand
+                if(!currentCalculation->operand1Set && currentCalculation->parent == NULL) {  //If first symbol is an operator then use last result as first operand
                     currentCalculation->operand1 = NewCalculation(currentCalculation);
                     currentCalculation->operand1->value = lastResult;
                     currentCalculation->operand1Set = true;
+                }
+                if(!currentCalculation->operand1Set) {
+                    DeleteCalculation(root);
+                    errorPrint("Missing operand beefore operator %c. Enter ? for help.\n", *str);
+                    return NULL;
                 }
                 currentCalculation->op = TranslateOperator(*str);
                 ++str;
@@ -199,42 +204,28 @@ Calculation* Parse(char* str, double lastResult){
             ++str;
         }
         else if (*str == '_'){
+            char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
+            int i = 0;
+            do{
+                varName[i++] = *(++str);
+                if(varName[i - 1] == '\0'){
+                    errorPrint("Could not find end of variable. Did you forget to add _ after name? Enter ? for help.\n");
+                    DeleteCalculation(root);
+                    return NULL;
+                }
+            }
+            while(*str != '_');
+            varName[i - 1] = '\0';
             if(currentCalculation->operand1Set){
                 currentCalculation->operand2 = NewCalculation(currentCalculation);
                 currentCalculation->operand2->op = OP_EXTERNAL_CALCULATION;
-                char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH));
-                int i = 0;
-                do{
-                    varName[i++] = *(++str);
-                    if(varName[i - 1] == '\0'){
-                        errorPrint("Unexpected symbol in string. Enter ? for help.\n");
-                        DeleteCalculation(root);
-                        return NULL;
-                    }
-                }
-                while(*str != '_');
-                varName[i - 1] = '\0';
                 currentCalculation->operand2->externalCalculationName = varName;
-                
                 ++str;
             }
             else{
                 currentCalculation->operand1 = NewCalculation(currentCalculation);
-                currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;
-                char* varName = (char*)malloc(sizeof(char) * (VARIABLE_MAX_NAME_LENGTH + 1));
-                int i = 0;
-                do{
-                    varName[i++] = *(++str);
-                    if(varName[i - 1] == '\0'){
-                        errorPrint("Unexpected symbol in string. Enter ? for help.\n");
-                        DeleteCalculation(root);
-                        return NULL;
-                    }
-                }
-                while(*str != '_');
-                varName[i - 1] = '\0';
-                currentCalculation->operand1->externalCalculationName = varName;
-                
+                currentCalculation->operand1->op = OP_EXTERNAL_CALCULATION;                
+                currentCalculation->operand1->externalCalculationName = varName;                
                 ++str;
                 currentCalculation->operand1Set = true;
             }
