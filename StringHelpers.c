@@ -9,12 +9,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void PushName(ConstStringArray* n, const char* str){
-    n->array = MyRealloc(n->array, ++n->numNames, ConstString);
+    ++n->numNames;
+    n->array = MyRealloc(n->array, n->numNames, ConstString);
     n->array[n->numNames - 1].str = str;
 }
 
 void PopLastString(ConstStringArray* n){
-    n->array = MyRealloc(n->array, --n->numNames, ConstString);
+    --n->numNames;
+    n->array = MyRealloc(n->array, n->numNames, ConstString);
 }
 
 bool FindName(ConstStringArray* n, const char* str){
@@ -65,13 +67,15 @@ ConstStringArray* Merge(ConstStringArray* n, ConstStringArray* n2){
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 string* PushChar(string* str, char c){
-    str->str = MyRealloc(str->str, ++str->size + 1, char);
+    ++str->size;
+    str->str = MyRealloc(str->str, str->size + 1, char);
     str->str[str->size - 1] = c;
     str->str[str->size] = '\0';
     return str;
 }
 string* PopLastChar(string* str){
-    str->str = MyRealloc(str->str, --str->size + 1, char);
+    --str->size;
+    str->str = MyRealloc(str->str, str->size + 1, char);
     str->str[str->size] = '\0';
     return str;
 }

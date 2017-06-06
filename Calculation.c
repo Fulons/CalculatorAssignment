@@ -60,6 +60,7 @@ Calculation* NewCalculation(Calculation* parent){
     calc->operand1Set = false;
     calc->inBracket = false;
     calc->externalCalculationName = NULL;
+    calc->value = 0;
     return calc;
 }
 
@@ -102,6 +103,8 @@ void ParseFile(const char* filePath, Variable* varRoot){
 
 //Parses the string into the binary tree of calculations
 Calculation* Parse(char* str, double lastResult){
+    if(*str == '\0' || *str == ' ' || *str == '\t' || *str == '\r'|| *str == '\n') return NULL;
+    
     Calculation* currentCalculation = NewCalculation(NULL);
     Calculation* root = currentCalculation; //The root might change while parsing. See design documentation.
     bool parsing = true;
@@ -139,6 +142,17 @@ Calculation* Parse(char* str, double lastResult){
                     currentCalculation->operand1Set = true;
                 }
                 if(!currentCalculation->operand1Set) {
+                    if(*str == '-'  && currentCalculation->inBracket){
+                        if(IsCharacters(str[1], "0123456789.")){
+                            currentCalculation->value = strtod(str, &str);
+                            if(*str == ')'){
+                                currentCalculation->inBracket = false;
+                                currentCalculation = currentCalculation->parent;
+                                ++str;
+                                continue;
+                            }
+                        }
+                    }
                     DeleteCalculation(root);
                     errorPrint("Missing operand beefore operator %c. Enter ? for help.\n", *str);
                     return NULL;
@@ -157,12 +171,12 @@ Calculation* Parse(char* str, double lastResult){
                     currentCalculation = newCalc;
                 }
                 else{
-                    if(currentCalculation->parent == NULL){                        
+                    if(currentCalculation->parent == NULL){
                         Calculation* newCalc = NewCalculation(NULL);
                         newCalc->operand1 = currentCalculation;
-                        newCalc->operand1Set = true;                        
+                        newCalc->operand1Set = true;
                         currentCalculation->parent = newCalc;
-                        currentCalculation = newCalc;                        
+                        currentCalculation = newCalc;
                         root = currentCalculation;
                     }
                     else if(currentCalculation->parent->operand1 == currentCalculation){    //TODO: research if this case will ever happen
@@ -188,6 +202,7 @@ Calculation* Parse(char* str, double lastResult){
         }
         else if (*str == '('){
             if(currentCalculation->operand1Set){
+                if(currentCalculation->operand2) { str = &str[-1]; *str = '*'; continue; }
                 if(currentCalculation->op == OP_NOOP) currentCalculation->op = OP_MULTIPLICATION;   //if no operator before parenthesis set operator to multiplication
                 currentCalculation->operand2 = NewCalculation(currentCalculation);
                 currentCalculation = currentCalculation->operand2;
@@ -204,19 +219,29 @@ Calculation* Parse(char* str, double lastResult){
         else if (*str == ')'){  //TODO: Set operator to * or handle it as an error if operation is not set
             while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
             currentCalculation = currentCalculation->parent;
-            ++str;
+            if(IsCharacters(str[1], "+-*/^v") || str[1] == '\0'){
+                ++str;                
+            }
+            else *str = '*';
         }
         else if (*str == '_'){
             char* varName = MyMalloc(VARIABLE_MAX_NAME_LENGTH + 1, char);
             int i = 0;
-            do{
-                varName[i++] = *(++str);
+            do{                
+                varName[i++] = *(++str);                
                 if(varName[i - 1] == '\0'){
                     errorPrint("Could not find end of variable. Did you forget to add _ after name? Enter ? for help.\n");
                     MyFree(varName, char);
                     DeleteCalculation(root);
                     return NULL;
                 }
+                if((varName[i - 1] < 'a' || varName[i - 1] > 'z') && (varName[i - 1] != '_')){
+                    errorPrint("You are trying to use an illegal variable name. Please see ReadMe for help.\n");
+                    MyFree(varName, char);
+                    DeleteCalculation(root);
+                    return NULL;
+                }
+                
             }
             while(*str != '_');
             varName[i - 1] = '\0';
@@ -295,7 +320,7 @@ bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Vari
     if(calc->operand2 && CheckForSelfContainingVariable(calc->operand2, n, varRoot)) return true;
     if(calc->op == OP_EXTERNAL_CALCULATION){
         if(FindName(n, calc->externalCalculationName)){
-            debugPrint("Found self containing variable: ");
+            infoPrint("Found self containing variable: ");
             for(int i = 0; i < n->numNames; i++)
                 printf("%s->", n->array[i]);
             printf("%s\n", calc->externalCalculationName);

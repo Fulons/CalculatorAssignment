@@ -29,8 +29,8 @@ struct Variable{
 Variable* NewVariable();            //Allocates memory and initialises a Variable struct
 void DeleteVariable(Variable* var); //Recuresively frees the memory of itself and children
 
-//Recursive function to add a calculation to the variable trie
-void AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining);
+//Recursive function to add a calculation to the variable trie. Return true if variable was replaced
+bool AddVariable(Variable* node, const char* name, Calculation* calc, bool selfContaining);
 //Recursive function that finds and returns a calculation in the trie or NULL if not found
 Calculation* FindCalculation(Variable* node, const char* name);
 //Prints variables to file or console
