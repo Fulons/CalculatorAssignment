@@ -38,16 +38,11 @@ extern "C" {
                                                 FindNumberOfInstances(G_allocatedTypes, uniqueVariables->array[i].str),\
                                                 FindNumberOfInstances(G_deallocatedTypes, uniqueVariables->array[i].str));\
                                             printf("NOTE: 3 Allocations of constStringArray and constString are\n      used for the purposes of this memory debug!\n");\
-                                            free(G_allocatedTypes->array);\
-                                            free(G_allocatedTypes);\
-                                            free(G_deallocatedTypes->array);\
-                                            free(G_deallocatedTypes);\
-                                            free(uniqueAllocations->array);\
-                                            free(uniqueAllocations);\
-                                            free(uniqueDeallocations->array);\
-                                            free(uniqueDeallocations);\
-                                            free(uniqueVariables->array);\
-                                            free(uniqueVariables);
+                                            free(G_allocatedTypes->array); free(G_allocatedTypes);\
+                                            free(G_deallocatedTypes->array); free(G_deallocatedTypes);\
+                                            free(uniqueAllocations->array); free(uniqueAllocations);\
+                                            free(uniqueDeallocations->array); free(uniqueDeallocations);\
+                                            free(uniqueVariables->array); free(uniqueVariables);
     #ifdef MEMORY_DEBUG_FULL    //Does memory allocation and deallocation counting and prints out message every time memory is allocated or deallocated
         #define MyRealloc(ptr, num, type) (type*)realloc(ptr, sizeof(type) * (num)); printf("Reallocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))
         #define MyMalloc(num, type) (type*)malloc(sizeof(type) * (num)); G_numAllocations++; PushName(G_allocatedTypes, #type); printf("Allocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))
@@ -62,7 +57,7 @@ extern "C" {
     #define MyMalloc(num, type) (type*)malloc(sizeof(type) * (num))
     #define MyFree(ptr, type) free(ptr)
     #define MEMORY_DEBUG_INIT
-    #define PRINT_MEMORY_ALLOCATIONS
+    #define MEMORY_DEBUG_PRINT_ALLOCATIONS
 #endif
 
     
