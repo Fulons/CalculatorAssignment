@@ -2,16 +2,16 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <data xmlns="http://www.netbeans.org/ns/make-project-private/1">
         <activeConfTypeElem>1</activeConfTypeElem>
-        <activeConfIndexElem>1</activeConfIndexElem>
+        <activeConfIndexElem>0</activeConfIndexElem>
     </data>
-    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="1"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/GeneralHelperFunctions.c</file>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/Calculation.h</file>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/Variable.h</file>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/Variable.c</file>
-            <file>file:/C:/Users/Fulons/Desktop/Calculator/Typedefs.h</file>
+            <file>file:/C:/Users/Fulons/Desktop/Calculator/Operations.c</file>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/GeneralHelperFunctions.h</file>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/SavedCalculations.txt</file>
             <file>file:/C:/Users/Fulons/Desktop/Calculator/ReadMe.txt</file>

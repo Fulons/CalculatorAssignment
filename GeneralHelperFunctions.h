@@ -20,12 +20,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif    
+
 #ifdef DEBUG
     extern int G_numAllocations;
     extern int G_numDeallocations;
     extern ConstStringArray* G_allocatedTypes;
     extern ConstStringArray* G_deallocatedTypes;
-    #define MEMORY_DEBUG_INIT   G_allocatedTypes = malloc(sizeof(ConstStringArray)); G_allocatedTypes->numNames = 0; G_allocatedTypes->array = malloc(sizeof(ConstString)); \
+    #define MEMORY_DEBUG_INIT   G_allocatedTypes = malloc(sizeof(ConstStringArray)); G_allocatedTypes->numNames = 0; G_allocatedTypes->array = malloc(sizeof(ConstString));\
                                 G_deallocatedTypes = malloc(sizeof(ConstStringArray)); G_deallocatedTypes->numNames = 0; G_deallocatedTypes->array = malloc(sizeof(ConstString));
     #define MEMORY_DEBUG_PRINT_ALLOCATIONS  ConstStringArray* uniqueAllocations = GetUniqueList(G_allocatedTypes);\
                                             ConstStringArray* uniqueDeallocations = GetUniqueList(G_deallocatedTypes);\
@@ -37,7 +38,7 @@ extern "C" {
                                                 uniqueVariables->array[i].str,\
                                                 FindNumberOfInstances(G_allocatedTypes, uniqueVariables->array[i].str),\
                                                 FindNumberOfInstances(G_deallocatedTypes, uniqueVariables->array[i].str));\
-                                            printf("NOTE: 3 Allocations of constStringArray and constString are\n      used for the purposes of this memory debug!\n");\
+                                            printf("NOTE: 3 Allocations of ConstStringArray and ConstString are\n      used for the purposes of this memory debug!\n");\
                                             free(G_allocatedTypes->array); free(G_allocatedTypes);\
                                             free(G_deallocatedTypes->array); free(G_deallocatedTypes);\
                                             free(uniqueAllocations->array); free(uniqueAllocations);\
@@ -46,7 +47,7 @@ extern "C" {
     #ifdef MEMORY_DEBUG_FULL    //Does memory allocation and deallocation counting and prints out message every time memory is allocated or deallocated
         #define MyRealloc(ptr, num, type) (type*)realloc(ptr, sizeof(type) * (num)); printf("Reallocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))
         #define MyMalloc(num, type) (type*)malloc(sizeof(type) * (num)); G_numAllocations++; PushName(G_allocatedTypes, #type); printf("Allocated memory.\nType: %s\nSize: %u\n", #type, num * sizeof(type))
-        #define MyFree(ptr, type) free(ptr); G_numDeallocations++; PushName(G_deallocatedTypes, #type); printf("Freed memory of type: %s\n", #type)
+        #define MyFree(ptr, type) free(ptr); G_numDeallocations++; PushName(G_deallocatedTypes, #type); printf("Freed memory of type: %s :", #type); printf("0x%16x\n", (long)ptr)
     #else                       //Does memory allocation and deallocation counting but only prints out  end result        
         #define MyRealloc(ptr, num, type) (type*)realloc(ptr, sizeof(type) * (num))
         #define MyMalloc(num, type) (type*)malloc(sizeof(type) * (num)); G_numAllocations++; PushName(G_allocatedTypes, #type)
@@ -60,7 +61,9 @@ extern "C" {
     #define MEMORY_DEBUG_PRINT_ALLOCATIONS
 #endif
 
-    
+//Cleans up the process in the main loop and parse file function. 
+//Handles saving calculation to variables,checking for self containing variables,
+//send buffer to be parsed and prints out results etc.
 void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool checkSelfContaining, bool printVarName, bool printCalc);
     
 //This checks a string if it has variable assignment and returns the name of the

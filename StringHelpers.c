@@ -37,8 +37,8 @@ void DeleteArrayOfstring(ConstStringArray* n){
     if(n->array){
         MyFree(n->array, ConstString);
     }
-    MyFree(n, ConstStringArray);
     n->numNames = 0;
+    MyFree(n, ConstStringArray);
 }
 
 ConstStringArray* GetUniqueList(ConstStringArray* n){

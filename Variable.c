@@ -97,7 +97,7 @@ void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRo
     for(int i = 0; i < VARIABLE_TRIE_WIDTH; i++){
         if(var->vars[i]) {
             CheckTrieVariablesForSelfContainingVariables(var->vars[i], varRoot, PushChar(varName, i + 'a'));
-            PopLastChar(varName);            
+            PopLastChar(varName);
         }
     }
     if(varName->size == 0) DeleteString(varName);

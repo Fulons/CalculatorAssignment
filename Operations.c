@@ -1,27 +1,26 @@
 #include <math.h>
 #include <stdio.h>
 
-float multiplication(float x, float y){
+double multiplication(double x, double y){
     return x * y;
 }
 
-float division(float x, float y){
+double division(double x, double y){
     return x / y;
 }
     
-float addition(float x, float y){
+double addition(double x, double y){
     return x + y;
 }
     
-float subtraction(float x, float y){
+double subtraction(double x, double y){
     return x - y;
 }
     
-float power(float x, float p){
+double power(double x, double p){
     return pow(x, p);
 }
     
-float root(float x, float root){
+double root(double x, double root){
     return pow(x, 1.0f / root);
 }
-

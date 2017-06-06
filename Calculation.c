@@ -240,8 +240,7 @@ Calculation* Parse(char* str, double lastResult){
                     MyFree(varName, char);
                     DeleteCalculation(root);
                     return NULL;
-                }
-                
+                }                
             }
             while(*str != '_');
             varName[i - 1] = '\0';
@@ -261,6 +260,11 @@ Calculation* Parse(char* str, double lastResult){
         }        
         else if(*str == '\0' || *str == '\r') parsing = false;
         else { errorPrint("Unexpected symbol in string. Enter ? for help.\n"); DeleteCalculation(root); return NULL; }    //Free memory and return NULL to indicate error
+    }
+    if(currentCalculation->op <= OP_NOOP && !currentCalculation->operand2){
+        errorPrint("Did calculation end in an operator?\n");
+        DeleteCalculation(root);
+        return NULL;
     }
     return root;
 }
@@ -289,11 +293,11 @@ double Calculate(Calculation* calc, Variable* node){    //recursive
 }
 
 //The recursive part of PrintCalculation function
-void PrintCalculationRecursive(Calculation* calc, FILE* file, bool printResult){
+void PrintCalculationRecursive(Calculation* calc, FILE* file, bool printVariableValue){
     if(calc->inBracket) fprintf(file, "(");
-    if(calc->operand1) PrintCalculationRecursive(calc->operand1, file, printResult);
+    if(calc->operand1) PrintCalculationRecursive(calc->operand1, file, printVariableValue);
     else if(calc->op == OP_EXTERNAL_CALCULATION){
-        if(printResult) fprintf(file, "\"%s=%g\"", calc->externalCalculationName, calc->value);
+        if(printVariableValue) fprintf(file, "\"%s=%g\"", calc->externalCalculationName, calc->value);
         else fprintf(file, "_%s_", calc->externalCalculationName);
     }
     else fprintf(file, "%g", calc->value);
@@ -305,13 +309,13 @@ void PrintCalculationRecursive(Calculation* calc, FILE* file, bool printResult){
         case OP_POWER:                  fprintf(file, "^"); break;
         case OP_ROOT:                   fprintf(file, "v"); break;
     }
-    if(calc->operand2) PrintCalculationRecursive(calc->operand2, file, printResult);
+    if(calc->operand2) PrintCalculationRecursive(calc->operand2, file, printVariableValue);
     if(calc->inBracket) fprintf(file, ")");
 }
 
-void PrintCalculation(Calculation* calc, FILE* file, bool printResult){
-    PrintCalculationRecursive(calc, file, printResult);
-    if(printResult) fprintf(file, " = %f\n", calc->value);
+void PrintCalculation(Calculation* calc, FILE* file, bool printVariableValue){
+    PrintCalculationRecursive(calc, file, printVariableValue);
+    if(printVariableValue) fprintf(file, " = %g\n", calc->value);
     else fprintf(file, "\r\n");
 }
 

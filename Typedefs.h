@@ -20,6 +20,7 @@ extern "C" {
 
 typedef enum { false = 0, true = 1 } bool;
 
+//To enable these two structs to contain a pointer of their own type they must be declared like this
 typedef struct Variable Variable;
 typedef struct Calculation Calculation; 
 
