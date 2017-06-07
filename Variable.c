@@ -34,10 +34,11 @@ bool AddVariable(Variable* node, const char* name, Calculation* calc, bool selfC
     if(*name == '\0'){          //This indicates that the correct location has been found
         if(node->calc){         //If variable already exist ask the user if it should be replaced with the new one or not
             if(AskUserYesOrNo("You sure you want to replace this variable?")){
+                DeleteCalculation(node->calc);
                 node->calc = calc;
                 node->isSelfContaining = selfContaining;
                 return true;
-            }
+            } else DeleteCalculation(calc);
         }
         else {
             node->calc = calc;

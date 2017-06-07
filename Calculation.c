@@ -145,12 +145,13 @@ Calculation* Parse(char* str, double lastResult){
                     if(*str == '-'  && currentCalculation->inBracket){
                         if(IsCharacters(str[1], "0123456789.")){
                             currentCalculation->value = strtod(str, &str);
-                            if(*str == ')'){
+                            if(*str == ')'){        //Successfully identify a negative number in brackets
                                 currentCalculation->inBracket = false;
                                 currentCalculation = currentCalculation->parent;
                                 ++str;
                                 continue;
                             }
+                            *str = '-'; //Just to simplify with one errpr print below
                         }
                     }
                     DeleteCalculation(root);
@@ -160,8 +161,8 @@ Calculation* Parse(char* str, double lastResult){
                 currentCalculation->op = TranslateOperator(*str);
                 ++str;
             }
-            else{   //TODO: ErrorCheck: Make sure Operand2 has been set?
-                    //TODO: These following cases are very similar and should be refactored
+            else{   
+                if(!currentCalculation->operand2) { errorPrint("Two consecutive operators found.\n"); DeleteCalculation(root); return NULL; }
                 if(HasHigherPrecedence(TranslateOperator(*str), currentCalculation->op)){
                     Calculation* newCalc = NewCalculation(currentCalculation);
                     newCalc->operand1 = currentCalculation->operand2;

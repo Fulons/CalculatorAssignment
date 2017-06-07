@@ -117,10 +117,11 @@ void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool che
             selfContaining = CheckForSelfContainingVariable(calc, arr, varRoot);
             DeleteArrayOfstring(arr);            
         }
-        if(AddVariable(varRoot, varName, calc, selfContaining)){
+        if(AddVariable(varRoot, varName, calc, selfContaining)){            
             infoPrint("Recalculating self containing variables...\n");
             CheckTrieVariablesForSelfContainingVariables(varRoot, varRoot, NULL); //Rechecks entire trie for updates on self containing variables
         }
+        calc = FindCalculation(varRoot, varName);
         if(printCalc){
             if(!selfContaining){
                 *lastResult = Calculate(calc, varRoot);
