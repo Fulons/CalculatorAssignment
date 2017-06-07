@@ -87,9 +87,9 @@ void CalcTrie(Variable* var, Variable* varRoot){
 }
 
 void CheckTrieVariablesForSelfContainingVariables(Variable* var, Variable* varRoot, string* varName){
-    if(varName == NULL) varName = CreateString();
+    if(varName == NULL) varName = NewString();
     if(var->calc){
-        ConstStringArray* arr = CreateConstStringArray(varName->str);
+        ConstStringArray* arr = NewConstStringArray(varName->str);
         if(CheckForSelfContainingVariable(var->calc, arr, varRoot))
             var->isSelfContaining = true;
         else var->isSelfContaining = false;

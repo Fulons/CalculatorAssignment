@@ -109,7 +109,7 @@ Calculation* Parse(char* str, double lastResult){
     Calculation* root = currentCalculation; //The root might change while parsing. See design documentation.
     bool parsing = true;
     while(parsing){
-        if(IsCharacters(*str, "0123456789.")){      //Numerical operand, rely on NewCalculation setting operand operation to OP_NOOP
+        if(IsCharInString(*str, "0123456789.")){      //Numerical operand, rely on NewCalculation setting operand operation to OP_NOOP
             if(currentCalculation->operand1Set){    //TODO: ErrorCheck: operator has been set??
                 currentCalculation->operand2 = NewCalculation(currentCalculation);
                 currentCalculation->operand2->value = strtod(str, &str);
@@ -133,7 +133,7 @@ Calculation* Parse(char* str, double lastResult){
                 ++str;
             }
         }
-        else if(IsCharacters(*str, "+-*/^v")){      //Operation 
+        else if(IsCharInString(*str, "+-*/^v")){      //Operation 
                                                     //TODO: ErrorCheck: First operand set or is this first part of equation so lastValue should be used?
             if(currentCalculation->op == OP_NOOP){
                 if(!currentCalculation->operand1Set && currentCalculation->parent == NULL) {  //If first symbol is an operator then use last result as first operand
@@ -143,7 +143,7 @@ Calculation* Parse(char* str, double lastResult){
                 }
                 if(!currentCalculation->operand1Set) {
                     if(*str == '-'  && currentCalculation->inBracket){
-                        if(IsCharacters(str[1], "0123456789.")){
+                        if(IsCharInString(str[1], "0123456789.")){
                             currentCalculation->value = strtod(str, &str);
                             if(*str == ')'){        //Successfully identify a negative number in brackets
                                 currentCalculation->inBracket = false;
@@ -220,7 +220,7 @@ Calculation* Parse(char* str, double lastResult){
         else if (*str == ')'){  //TODO: Set operator to * or handle it as an error if operation is not set
             while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
             currentCalculation = currentCalculation->parent;
-            if(IsCharacters(str[1], "+-*/^v") || str[1] == '\0'){
+            if(IsCharInString(str[1], "+-*/^v") || str[1] == '\0'){
                 ++str;                
             }
             else *str = '*';

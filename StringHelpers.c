@@ -25,7 +25,7 @@ bool FindName(ConstStringArray* n, const char* str){
     return false;
 }
 
-ConstStringArray* CreateConstStringArray(const char* firstStr){
+ConstStringArray* NewConstStringArray(const char* firstStr){
     ConstStringArray* ret = MyMalloc(1, ConstStringArray);
     ret->array = MyMalloc(1, ConstString);
     ret->array[0].str = firstStr;
@@ -42,7 +42,7 @@ void DeleteArrayOfstring(ConstStringArray* n){
 }
 
 ConstStringArray* GetUniqueList(ConstStringArray* n){
-    ConstStringArray* ret = CreateConstStringArray("none");
+    ConstStringArray* ret = NewConstStringArray("none");
     for(int i = 0; i < n->numNames; i++){
         if(!FindName(ret, n->array[i].str)){
             PushName(ret, n->array[i].str);
@@ -80,7 +80,7 @@ string* PopLastChar(string* str){
     return str;
 }
 
-string* CreateString(){    
+string* NewString(){    
     string* str = MyMalloc(1, string);
     str->str = MyMalloc(1, char);
     str->size = 0;
@@ -114,7 +114,7 @@ void RemoveWhitespace(char* str){
     }
 }
 
-bool IsCharacters(char c, const char* str){
+bool IsCharInString(char c, const char* str){
     for (int i = 0;; i++){
         if (str[i] == '\0') return false;
         if (c == str[i]) return true;
@@ -139,7 +139,7 @@ int ReadFileToDelim(char* buffer, int bufferSize, const char* delims, FILE* file
     for(int i = 0; i <  bufferSize; i++){
         int buff = (char)fgetc(file);
         buffer[i] = buff;
-        if(IsCharacters(buffer[i], delims) || feof(file)){
+        if(IsCharInString(buffer[i], delims) || feof(file)){
             buffer[i] = '\0';
             return ++i;
         }

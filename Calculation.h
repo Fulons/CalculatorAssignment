@@ -51,11 +51,10 @@ void PrintCalculation(Calculation* calc, FILE* file, bool printResult); //To pri
 
 //Recursive function that check for self containing variables in a calculation.
 //To avoid infinite loops
-bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot); 
+bool CheckForSelfContainingVariable(Calculation* calc, ConstStringArray* n, Variable* varRoot);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* CALCULATION_H */
-

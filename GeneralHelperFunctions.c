@@ -22,7 +22,7 @@
     
 char* CheckForVariableAsssignment(char* str){
     char* varBuffer = NULL;
-    if(str[0] == '_' && IsCharacters('=', str)){
+    if(str[0] == '_' && IsCharInString('=', str)){
         varBuffer = MyMalloc(VARIABLE_MAX_NAME_LENGTH, char);
         int i = 0;
         while(*str != '=') {            
@@ -42,7 +42,7 @@ bool PreProcess(char* buffer, Variable* varRoot){
     RemoveWhitespace(buffer);
     if(buffer[0] == '\0') return true;          //In some cases stdin will have some remaining whitespace in the buffer this will resolve that
     ToLowerCase(buffer);
-    if(!IsCharacters(*buffer, "q+-*x/^v0123456789._(l?p")){      //Check if first char in buffer is a legit
+    if(!IsCharInString(*buffer, "q+-*x/^v0123456789._(l?p")){      //Check if first char in buffer is a legit
         printf("Unexpected character at beginning of string: %c\nPlease see ReadMe.txt for usage or try again.\n", *buffer);
         return true;
     }
@@ -75,34 +75,44 @@ void WelcomeMessage(){
     printf("* * * * * * * * * * * * * * * * * * * * * * * *\n");
     printf("*              by: Fulons                     *\n");
     printf("***********************************************\n");
-    printf("*Type ? for basic usage or see the ReadMe.txt *\n");
-    printf("*ReadMe.txtfile for more in depth instructions*\n");
+    printf("*Type ? or see the ReadMe.txt for help on use *\n");
     printf("***********************************************\n");
 }
 
+#define DEFAULT_HELP_FILENAME "ReadMe.txt"
+
 void DisplayHelp(){
-    printf("                     CALCULATOR USAGE                              \n");
-    printf("                                                                   \n");
-    printf("|Operation       |   Symbol  | Example usage | Example return     |\n");
-    printf("|----------------|-----------|---------------|--------------------|\n");
-    printf("|Addition        |   +       |   5 + 3       |   8                |\n");
-    printf("|Subtraction     |   -       |   5 - 6       |  -1                |\n");
-    printf("|Multiplication  |   * x X   |   3 * 5       |  15                |\n");
-    printf("|Division        |   /       |   6 / 2       |   3                |\n");
-    printf("|Power           |   ^       |   2 ^ 3       |   8                |\n");
-    printf("|Root            |   v V     |   16 v 2      |   4                |\n");
-    printf("|----------------|---------------------------|--------------------|\n");
-    printf("|Brackets        |   ( )     |   5 * (3 + 2) |  25                |\n");
-    printf("|----------------|---------------------------|--------------------|\n");
-    printf("|Create variable | _varName= | _myVar = 5 + 2| myVar = 5 + 2 = 7  |\n");
-    printf("|Use variable    | _varName_ | 5 + _myVar_   |  12                |\n");
-    printf("|----------------|-----------|---------------|--------------------|\n");
-    printf("|Use last result |   l L     |   5 + l       |  17                |\n");
-    printf("|----------------|-----------|---------------|--------------------|\n");
-    printf("|Show help       |   ?       |   ?           |Displays this table |\n");
-    printf("|----------------|-----------|---------------|--------------------|\n");
-    printf("|Print variables |   p       |   p           |Display list of vars|\n");
-    printf("|----------------|-----------|---------------|--------------------|\n");
+    FILE* f = fopen(DEFAULT_HELP_FILENAME, "r");
+    fseek(f, 0, SEEK_END);
+    long size = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    char* buffer = MyMalloc(size, char);
+    fread(buffer, size, 1, f);
+    fclose(f);
+    printf("%s\n", buffer);
+    MyFree(buffer, char);
+//    printf("                     CALCULATOR USAGE                              \n");
+//    printf("                                                                   \n");
+//    printf("|Operation       |   Symbol  | Example usage | Example return     |\n");
+//    printf("|----------------|-----------|---------------|--------------------|\n");
+//    printf("|Addition        |   +       |   5 + 3       |   8                |\n");
+//    printf("|Subtraction     |   -       |   5 - 6       |  -1                |\n");
+//    printf("|Multiplication  |   * x X   |   3 * 5       |  15                |\n");
+//    printf("|Division        |   /       |   6 / 2       |   3                |\n");
+//    printf("|Power           |   ^       |   2 ^ 3       |   8                |\n");
+//    printf("|Root            |   v V     |   16 v 2      |   4                |\n");
+//    printf("|----------------|---------------------------|--------------------|\n");
+//    printf("|Brackets        |   ( )     |   5 * (3 + 2) |  25                |\n");
+//    printf("|----------------|---------------------------|--------------------|\n");
+//    printf("|Create variable | _varName= | _myVar = 5 + 2| myVar = 5 + 2 = 7  |\n");
+//    printf("|Use variable    | _varName_ | 5 + _myVar_   |  12                |\n");
+//    printf("|----------------|-----------|---------------|--------------------|\n");
+//    printf("|Use last result |   l L     |   5 + l       |  17                |\n");
+//    printf("|----------------|-----------|---------------|--------------------|\n");
+//    printf("|Show help       |   ?       |   ?           |Displays this table |\n");
+//    printf("|----------------|-----------|---------------|--------------------|\n");
+//    printf("|Print variables |   p       |   p           |Display list of vars|\n");
+//    printf("|----------------|-----------|---------------|--------------------|\n");
 }
 
 void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool checkSelfContaining, bool printVarName, bool printCalc){
@@ -113,7 +123,7 @@ void ProcessBuffer(char* buffer, double* lastResult, Variable* varRoot, bool che
         if(!calc) return;
         bool selfContaining = false;
         if(checkSelfContaining || printCalc){
-            ConstStringArray* arr = CreateConstStringArray(varName);
+            ConstStringArray* arr = NewConstStringArray(varName);
             selfContaining = CheckForSelfContainingVariable(calc, arr, varRoot);
             DeleteArrayOfstring(arr);            
         }
