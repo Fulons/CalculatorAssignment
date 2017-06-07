@@ -262,7 +262,7 @@ Calculation* Parse(char* str, double lastResult){
         else if(*str == '\0' || *str == '\r') parsing = false;
         else { errorPrint("Unexpected symbol in string. Enter ? for help.\n"); DeleteCalculation(root); return NULL; }    //Free memory and return NULL to indicate error
     }
-    if(currentCalculation->op <= OP_NOOP && !currentCalculation->operand2){
+    if(currentCalculation->op < OP_NOOP && !currentCalculation->operand2){
         errorPrint("Did calculation end in an operator?\n");
         DeleteCalculation(root);
         return NULL;
