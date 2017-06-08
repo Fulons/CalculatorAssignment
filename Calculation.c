@@ -221,7 +221,7 @@ Calculation* Parse(char* str, double lastResult){
             while(!currentCalculation->inBracket) currentCalculation = currentCalculation->parent;
             currentCalculation = currentCalculation->parent;
             if(IsCharInString(str[1], "+-*/^v") || str[1] == '\0'){
-                ++str;                
+                ++str;
             }
             else *str = '*';
         }
@@ -258,7 +258,7 @@ Calculation* Parse(char* str, double lastResult){
                 ++str;
                 currentCalculation->operand1Set = true;
             }
-        }        
+        }
         else if(*str == '\0' || *str == '\r') parsing = false;
         else { errorPrint("Unexpected symbol in string. Enter ? for help.\n"); DeleteCalculation(root); return NULL; }    //Free memory and return NULL to indicate error
     }
@@ -276,8 +276,14 @@ double Calculate(Calculation* calc, Variable* node){    //recursive
         case OP_SUBTRACTION:    calc->value = Calculate(calc->operand1, node) - Calculate(calc->operand2, node); break;
         case OP_MULTIPLICATION: calc->value = Calculate(calc->operand1, node) * Calculate(calc->operand2, node); break;
         case OP_DIVISION:       calc->value = Calculate(calc->operand1, node) / Calculate(calc->operand2, node); break;
-        case OP_POWER:          calc->value = power(Calculate(calc->operand1, node), Calculate(calc->operand2, node)); break;
-        case OP_ROOT:           calc->value = root(Calculate(calc->operand1, node), Calculate(calc->operand2, node)); break;
+        case OP_POWER:          {
+                                double op1 = Calculate(calc->operand1, node);
+                                double op2 = Calculate(calc->operand2, node);
+                                calc->value = PowerPower(op1, op2); break;}
+        case OP_ROOT:           {
+                                double op1 = Calculate(calc->operand1, node);
+                                double op2 = Calculate(calc->operand2, node);
+                                calc->value = RootRoot(op1, op2); break;}
         case OP_EXTERNAL_CALCULATION: {
             Calculation* externalCalc = FindCalculation(node, calc->externalCalculationName);
             if(!externalCalc) {

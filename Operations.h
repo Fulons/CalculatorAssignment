@@ -12,12 +12,12 @@
 extern "C" {
 #endif
 
-    float multiplication(float x, float y);
-    float division(float x, float y);
-    float addition(float x, float y);
-    float subtraction(float x, float y);
-    float power(float x, float p);
-    float root(float x, float root);
+    double Multiplication(double x, double y);
+    double Division(double x, double y);
+    double Addition(double x, double y);
+    double Subtraction(double x, double y);
+    double PowerPower(double x, double p);
+    double RootRoot(double x, double root);
 
 
 
