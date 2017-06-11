@@ -270,20 +270,16 @@ Calculation* Parse(char* str, double lastResult){
     return root;
 }
 
+
+
 double Calculate(Calculation* calc, Variable* node){    //recursive
     switch(calc->op){
         case OP_ADDITION:       calc->value = Calculate(calc->operand1, node) + Calculate(calc->operand2, node); break;
         case OP_SUBTRACTION:    calc->value = Calculate(calc->operand1, node) - Calculate(calc->operand2, node); break;
         case OP_MULTIPLICATION: calc->value = Calculate(calc->operand1, node) * Calculate(calc->operand2, node); break;
         case OP_DIVISION:       calc->value = Calculate(calc->operand1, node) / Calculate(calc->operand2, node); break;
-        case OP_POWER:          {
-                                double op1 = Calculate(calc->operand1, node);
-                                double op2 = Calculate(calc->operand2, node);
-                                calc->value = PowerPower(op1, op2); break;}
-        case OP_ROOT:           {
-                                double op1 = Calculate(calc->operand1, node);
-                                double op2 = Calculate(calc->operand2, node);
-                                calc->value = RootRoot(op1, op2); break;}
+        case OP_POWER:          calc->value = Power(Calculate(calc->operand1, node), Calculate(calc->operand2, node)); break;
+        case OP_ROOT:           calc->value = Root(Calculate(calc->operand1, node), Calculate(calc->operand2, node)); break;
         case OP_EXTERNAL_CALCULATION: {
             Calculation* externalCalc = FindCalculation(node, calc->externalCalculationName);
             if(!externalCalc) {

@@ -16,8 +16,8 @@ extern "C" {
     double Division(double x, double y);
     double Addition(double x, double y);
     double Subtraction(double x, double y);
-    double PowerPower(double x, double p);
-    double RootRoot(double x, double root);
+    double Power(double x, double p);
+    double Root(double x, double root);
 
 
 

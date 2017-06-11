@@ -17,10 +17,10 @@ double Subtraction(double x, double y){
     return x - y;
 }
     
-double PowerPower(double x, double p){
+double Power(double x, double p){
     return pow(x, p);
 }
     
-double RootRoot(double x, double root){
+double Root(double x, double root){
     return pow(x, 1.0f / root);
 }

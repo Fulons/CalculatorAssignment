@@ -54,7 +54,7 @@ typedef struct{
 
 string* PushChar(string* str, char c);      //Adds a char to end of string
 string* PopLastChar(string* str);           //Removes last char from string
-string* NewString();                     //Allocates a new string
+string* NewString();                        //Allocates a new string
 void DeleteString(string* str);             //Frees the memory of the string
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

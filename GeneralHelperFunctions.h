@@ -22,12 +22,14 @@ extern "C" {
 #endif    
 
 #ifdef DEBUG
-    extern int G_numAllocations;
-    extern int G_numDeallocations;
-    extern ConstStringArray* G_allocatedTypes;
-    extern ConstStringArray* G_deallocatedTypes;
+    extern int G_numAllocations;    //Total number of MyAlloc calls
+    extern int G_numDeallocations;  //Total number of MyFree calls
+    extern ConstStringArray* G_allocatedTypes;      //Stores an array of strings. Each entity in the array is a single allocation
+    extern ConstStringArray* G_deallocatedTypes;    //Stores an array of strings. Each entity in the array is a single deallocation
+    //Helper definition to initialise memory debugging
     #define MEMORY_DEBUG_INIT   G_allocatedTypes = malloc(sizeof(ConstStringArray)); G_allocatedTypes->numNames = 0; G_allocatedTypes->array = malloc(sizeof(ConstString));\
                                 G_deallocatedTypes = malloc(sizeof(ConstStringArray)); G_deallocatedTypes->numNames = 0; G_deallocatedTypes->array = malloc(sizeof(ConstString));
+    //Helper definition to print out the memory debugging
     #define MEMORY_DEBUG_PRINT_ALLOCATIONS  ConstStringArray* uniqueAllocations = GetUniqueList(G_allocatedTypes);\
                                             ConstStringArray* uniqueDeallocations = GetUniqueList(G_deallocatedTypes);\
                                             ConstStringArray* uniqueVariables = GetUniqueList(Merge(uniqueAllocations, uniqueDeallocations));\
